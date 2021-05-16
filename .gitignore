@@ -1,6 +1,8 @@
 .nrepl-port
 /.cpcache/
 /.shadow-cljs/
+/.calva/output-window
+/.lsp
 /config/
 /data/
 /node_modules/
