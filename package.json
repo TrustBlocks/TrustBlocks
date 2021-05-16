@@ -1,0 +1,24 @@
+{
+  "name": "trustblocks",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "applied-science/js-interop": "0.2.7",
+    "@accordproject/cicero-core": "0.22.0",
+    "@accordproject/concerto-core": "1.0.0",
+    "@accordproject/ergo-compiler": "0.22.0",
+    "@accordproject/ergo-engine": "0.22.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  },
+  "devDependencies": {
+    "shadow-cljs": "^2.13.0"
+  }
+}

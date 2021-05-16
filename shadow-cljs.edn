@@ -1,0 +1,9 @@
+{:deps {:aliases [:dev]}
+ :nrepl false
+ :builds {:app {:target :browser
+                :output-dir "target/resources/public/cljs/app"
+                :asset-path "/cljs/app"
+                :compiler-options {:infer-externs :auto}
+                :modules {:main {:init-fn trustblocks.client.app/init
+                                 :entries [trustblocks.client.app]}}
+                :devtools {:after-load trustblocks.client.app/mount}}}}
