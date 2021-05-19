@@ -1,14 +1,8 @@
 (ns trustblocks.client.app.cicero
   (:require
    [applied-science.js-interop :as j]
-   ["@accordproject/cicero-core": "0.22.0"]))
+   [@accordproject/cicero-core :as cicero]))
 
-(def note (.new Clause ../templates/promissory-note/grammar.tem.md))
-(type note)
-
-(def car "pontiac")
-(type car)
-(comment
   
    // js code from: https://github.com/accordproject/aws-qldb-lambda
    // load the template
