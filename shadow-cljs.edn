@@ -1,4 +1,7 @@
 {:deps {:aliases [:dev]}
+:source-paths
+["src/client"]
+
  :nrepl false
  :builds {:app {:target :browser
                 :output-dir "target/resources/public/cljs/app"

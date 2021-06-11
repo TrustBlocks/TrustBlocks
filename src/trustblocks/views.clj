@@ -20,7 +20,7 @@
 
 (def signin-form
   (list
-    [:.text-lg "Email address:"]
+    [:.text-lg "Your Email address:"]
     [:.h-3]
     [:form.mb-0 {:action "/api/send-token" :method "post"}
      [:.flex
@@ -30,7 +30,7 @@
       [:.w-3]
       [:button.btn {:type "submit"} "Sign in"]]]
     [:.h-1]
-    [:.text-sm "Doesn't need to be a real address."]))
+    [:.text-sm "Can be a real address."]))
 
 (def home
   (base

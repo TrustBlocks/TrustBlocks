@@ -80,7 +80,7 @@
                       :query-params {:submitted true}})}}
          [:.text-lg "Foo: " [:span.font-mono (pr-str foo)]]
          [:.text-sm.text-gray-600
-          "This demonstrates submitting a Biff transaction via an HTML form."]
+          "This demonstrates submitting a Contract transaction via an HTML form."]
          [:.h-1]
          [:.flex
           [:input.input-text.w-full {:name "foo"
