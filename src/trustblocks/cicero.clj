@@ -22,7 +22,8 @@
   (client/post "http://localhost:6001/parse/latedeliveryandpenalty"
                {:content-type :json
                 :accept       :json
-                :body-content   {"sample" " ##Late Delivery and Penalty. \n \n In case of delayed delivery except for Force Majeure cases, \n \"Dan \" (the Seller) shall pay to \"Steve \" (the Buyer) for every 2 days \nof delay penalty amounting to 10.5 % of the total value of the Equipment \nwhose delivery has been delayed. Any fractional part of a days is to be \nconsidered a full days. The total amount of penalty shall not however, \nexceed 55 % of the total value of the Equipment involved in late delivery. \nIf the delay is more than 15 days, the Buyer is entitled to terminate this Contract." }
+                :body-type    :json
+                :body-content  {"sample""##Late Delivery and Penalty. \n \n In case of delayed delivery except for Force Majeure cases, \n \"Dan \" (the Seller) shall pay to \"Steve \" (the Buyer) for every 2 days \nof delay penalty amounting to 10.5 % of the total value of the Equipment \nwhose delivery has been delayed. Any fractional part of a days is to be \nconsidered a full days. The total amount of penalty shall not however, \nexceed 55 % of the total value of the Equipment involved in late delivery. \nIf the delay is more than 15 days, the Buyer is entitled to terminate this Contract."}
                 })
 
   curl --request POST \
