@@ -1,42 +1,137 @@
 (ns trustblocks.cicero
   (:require [biff.util :as bu]
+            [biff.crux :as bcrux]
+            [crux.api :as crux]
             [clj-http.client :as client]
             [portal.api :as p]
             [clojure.string :as str]
             [clojure.data.json :as json]))
 
-(defn run-cicero
+(defn run-cicero-cli
   "Simple proof of concept for parse from command line -- pretty slow"
   [contract]
   (let [cta (str "templates/" contract)]
     (bu/sh "cicero" "parse" cta :out-enc "UTF-8")))
 
+;; Set up endpoint for local server
+
+(def cicero-end "http://localhost:6001/")
+
+(defn cicero-parse
+  "Parsing API call"
+  [contract sample]
+  (:body
+    (client/post (str cicero-end "parse/" contract)
+                 {:content-type :json
+                  :accept :json
+                  :as :json
+                  :form-params {"sample" sample}}))
+  )
+
+(defn cicero-draft
+  "Draft API Call"
+  [contract data]
+  (:body
+    (client/post (str cicero-end "draft/" contract)
+                 {:content-type :json
+                  :accept       :json
+                  :as           :json
+                  :form-params  {"data" data}})))
 
 ;;;  Version 2 using cicero-server --- running locally Localhost:6001
 
 (comment
 
+
+;;; Getting into database
+;;;
+
+  (bcrux/submit-tx
+    (assoc sys :biff.crux/authorize true)
+    (cicero-parse "latedeliveryandpenalty" sample))
+
+
+;;; results from cicero-parse
+;;;
+
+  (def delta
+    {:contractId "92c57f20-dda0-4511-bd2b-d3f6bb4dfedc",
+     :penaltyDuration {:$class "org.accordproject.time.Duration", :amount 2, :unit "days"},
+     :$identifier "92c57f20-dda0-4511-bd2b-d3f6bb4dfedc",
+     :$class "org.accordproject.latedeliveryandpenalty.LateDeliveryAndPenaltyContract",
+     :forceMajeure true,
+     :termination {:$class "org.accordproject.time.Duration", :amount 15, :unit "days"},
+     :fractionalPart "days",
+     :buyer "resource:org.accordproject.party.Party#Steve",
+     :capPercentage 55,
+     :penaltyPercentage 10.5,
+     :seller "resource:org.accordproject.party.Party#Dan"})
+
+
+;;; Curl Request from Docs
+curl --request POST \
+--url http://localhost:6001/draft/latedeliveryandpenalty \
+--header 'accept: application/json' \
+--header 'content-type: application/json' \
+--data '{
+         "data": {
+                  "$class": "org.accordproject.latedeliveryandpenalty.LateDeliveryAndPenaltyContract",
+                          "contractId": "ecd6257e-2ffe-4ef1-8a5c-38ca9084a829",
+                  "buyer": {
+                            "$class": "org.accordproject.cicero.contract.AccordParty",
+                                    "partyId": "Dan"
+                            },
+                          "seller": {
+                                     "$class": "org.accordproject.cicero.contract.AccordParty",
+                                             "partyId": "Steve"
+                                     },
+                  "forceMajeure": true,
+                  "penaltyDuration": {
+                                      "$class": "org.accordproject.time.Duration",
+                                              "amount": 9,
+                                      "unit": "days"
+                                      },
+                  "penaltyPercentage": 1000.5,
+                  "capPercentage": 88,
+                  "termination": {
+                                  "$class": "org.accordproject.time.Duration",
+                                          "amount": 5,
+                                  "unit": "weeks"
+                                  },
+                  "fractionalPart": "days"
+                  },
+               "options": {
+                           "unquoteVariables": true
+                           }
+         }'
+
+
+  (def sample "## Late Delivery and Penalty.\n\n In case of delayed delivery except for Force Majeure cases,\n\"Dan\" (the Seller) shall pay to \"Steve\" (the Buyer) for every 2 days\nof delay penalty amounting to 10.5% of the total value of the Equipment\nwhose delivery has been delayed. Any fractional part of a days is to be\nconsidered a full days. The total amount of penalty shall not however,\nexceed 55% of the total value of the Equipment involved in late delivery.\nIf the delay is more than 15 days, the Buyer is entitled to terminate this Contract.")
+
+
+  (cicero-draft "latedeliveryandpenalty" delta)
+
+
+  (cicero-draft "latedeliveryandpenalty" draft)
+
+  (cicero-parse "latedeliveryandpenalty" sample )
+
+;;; Proper format from Jacob
+
+  (:body
+    (client/post "http://localhost:6001/draft/latedeliveryandpenalty"
+               {:content-type :json
+                :accept :json
+                :as :json
+                :form-params {"draft" draft}}))
+
+
+
+
   ;;; Grab a json model from the model repository
  (client/get "https://models.accordproject.org/accordproject/party.json")
 
-  (client/post "http://localhost:6001/parse/latedeliveryandpenalty"
-               {:content-type :json
-                :accept       :json
-                :body-type    :json
-                :data  '{"sample": "##Late Delivery and Penalty. \n \n In case of delayed delivery except for Force Majeure cases, \n \"Dan \" (the Seller) shall pay to \"Steve \" (the Buyer) for every 2 days \nof delay penalty amounting to 10.5 % of the total value of the Equipment \nwhose delivery has been delayed. Any fractional part of a days is to be \nconsidered a full days. The total amount of penalty shall not however, \nexceed 55 % of the total value of the Equipment involved in late delivery. \nIf the delay is more than 15 days, the Buyer is entitled to terminate this Contract."}
-                '
-                })
-
-  curl --request POST \
-  --url http://localhost:6001/parse/latedeliveryandpenalty \
-  --header 'accept: application/json' \
-  --header 'content-type: application/json' \
-  --data '{
-           "sample": "## Late Delivery and Penalty.\n\n In case of delayed delivery except for Force Majeure cases,\n\"Dan\" (the Seller) shall pay to \"Steve\" (the Buyer) for every 2 days\nof delay penalty amounting to 10.5% of the total value of the Equipment\nwhose delivery has been delayed. Any fractional part of a days is to be\nconsidered a full days. The total amount of penalty shall not however,\nexceed 55% of the total value of the Equipment involved in late delivery.\nIf the delay is more than 15 days, the Buyer is entitled to terminate this Contract."}
-  '
-
-
-  )
+    )
 
 
 (comment  -- CLI Tests
@@ -45,11 +140,13 @@
 (add-tap #'p/submit)                                        ;add p as portal target
 (def k (run-cicero "promissory-note"))  ; returns text with two lines at front
 (println k)
+          (tap> (cicero-parse "latedeliveryandpenalty" sample ))
 (tap> (run-cicero "promissory-note"))                       ; have to strip off 1st 2 lines
 (println (str/trim-newline (run-cicero "promissory-note"))) ; doesn't work returns whole thing in vector
 (println k)
 (str/split k )
 (println (str/split-lines k))
+
 
 ;; Cut and paste removing first two lines ----
 
