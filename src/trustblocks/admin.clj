@@ -6,6 +6,7 @@
   (let [{:keys [biff.crux/node] :as sys} @bu/system]
     (assoc sys :biff.crux/db (delay (crux/db node)))))
 
+[]
 (comment
 
   (let [{:keys [biff.crux/db
