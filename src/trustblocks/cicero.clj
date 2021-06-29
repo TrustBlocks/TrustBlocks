@@ -2,9 +2,9 @@
   (:require [biff.util :as bu]
             [biff.crux :as bcrux]
             [crux.api :as crux]
+            [trustblocks.admin :refer [sys]]
             [clj-http.client :as client]
             [portal.api :as p]
-            [trustblocks.admin :refer [sys]]
             [clojure.string :as str]
             [clojure.data.json :as json]))
 
@@ -54,6 +54,16 @@
 
   ;;; Getting into database
   ;;;
+
+
+  (let [{:keys [biff.crux/db
+
+                biff.crux/node
+                biff.crux/subscriptions] :as sys} (sys)]
+    (bcrux/submit-tx
+      sys
+      {[:contract] (cicero-parse "latedeliveryandpenalty" sample)}))
+
 
   (bcrux/submit-tx  ;; ClassCastException
     (assoc sys :biff.crux/authorize true)

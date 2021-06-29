@@ -29,6 +29,7 @@
     :contract/stateID    :string
     :contract            [:map
                           [:crux.db/id :contract/contractID]
+                          [:contract/class]
                           [:contract/template {:optional true}]
                           [:contract/text {:optional true}]
                           [:contract/model {:optional true}]
@@ -44,6 +45,7 @@
     :clause/stateID      :string
     :clause              [:map
                           [:crux.db/id :clause/clauseID]
+                          [:clause/class]
                           [:clause/template {:optional true}]
                           [:clause/text {:optional true}]
                           [:clause/model {:optional true}]
@@ -53,7 +55,7 @@
     }])
 
 (def schema (misc/map->MalliSchema
-              {:doc-types  [:user :msg]
+              {:doc-types  [:user :msg :contract :clause]
                :malli-opts {:registry (misc/malli-registry registry)}}))
 
 (defmethod authorize [:msg :create]
