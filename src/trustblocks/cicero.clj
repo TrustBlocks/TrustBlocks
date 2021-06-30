@@ -1,8 +1,10 @@
 (ns trustblocks.cicero
   (:require [biff.util :as bu]
+            [biff.util.protocols :as proto]
             [biff.crux :as bcrux]
             [crux.api :as crux]
             [trustblocks.admin :refer [sys]]
+            [trustblocks.rules :refer [schema]]
             [clj-http.client :as client]
             [portal.api :as p]
             [clojure.string :as str]
@@ -36,6 +38,11 @@
                   :form-params  {"sample" sample}}))
   )
 
+(defn normalize-contract [{:keys [contractId] :as parsed-contract}]
+  (-> (bu/prepend-keys "contract" parsed-contract)
+      (dissoc :contract/contractId)
+      (assoc :crux.db/id (java.util.UUID/fromString contractId))))
+
 
 ;;; Basic draft function - this takes a template and JSON to return a Markdown Document
 
@@ -56,13 +63,33 @@
   ;;;
 
 
-  (let [{:keys [biff.crux/db
+  (def contract (normalize-contract (cicero-parse "latedeliveryandpenalty" sample)))
+  ;; =>
+  {:contract/forceMajeure true,
+   :contract/fractionalPart "days",
+   :contract/capPercentage 55,
+   :contract/seller "resource:org.accordproject.party.Party#Dan",
+   :contract/penaltyPercentage 10.5,
+   :contract/buyer "resource:org.accordproject.party.Party#Steve",
+   :contract/termination
+   {:$class "org.accordproject.time.Duration", :amount 15, :unit "days"},
+   :contract/$class
+   "org.accordproject.latedeliveryandpenalty.LateDeliveryAndPenaltyContract",
+   :crux.db/id #uuid "ed3dcee9-2bb7-4871-9c04-0c21ed09b854",
+   :contract/$identifier "ed3dcee9-2bb7-4871-9c04-0c21ed09b854",
+   :contract/penaltyDuration
+   {:$class "org.accordproject.time.Duration", :amount 2, :unit "days"}}
 
-                biff.crux/node
-                biff.crux/subscriptions] :as sys} (sys)]
-    (bcrux/submit-tx
-      sys
-      {[:contract] (cicero-parse "latedeliveryandpenalty" sample)}))
+  (proto/valid? schema :contract contract) ; true
+
+  (bcrux/submit-tx
+    (sys)
+    {[:contract (:crux.db/id contract)] contract})
+
+  (let [{:keys [biff.crux/db]} (sys)]
+    (crux/q @db
+            '{:find [(pull contract [*])]
+              :where [[contract :contract/$class]]}))
 
 
   (bcrux/submit-tx  ;; ClassCastException

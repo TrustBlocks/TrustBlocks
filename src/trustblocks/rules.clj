@@ -5,54 +5,55 @@
 ; See https://biff.findka.com/#rules
 
 (def registry
-  [:map
-   {:user/id             :uuid
-    :user/email          :string
-    :user                [:map {:closed true}
-                          [:crux.db/id :user/id]
-                          :user/email]
-    :msg/id              :uuid
-    :msg/user            :user/id
-    :msg/text            :string
-    :msg/sent-at         inst?
-    :msg                 [:map {:closed true}
-                          [:crux.db/id :msg/id]
-                          :msg/user
-                          :msg/text
-                          :msg/sent-at]
-    :contract/contractID :uuid
-    :contract/template   :string
-    :contract/text       :string
-    :contract/model      :string
-    :contract/logic      :string
-    :contract/partyID    :string
-    :contract/stateID    :string
-    :contract            [:map
-                          [:crux.db/id :contract/contractID]
-                          [:contract/class]
-                          [:contract/template {:optional true}]
-                          [:contract/text {:optional true}]
-                          [:contract/model {:optional true}]
-                          [:contract/logic {:optional true}]
-                          [:contract/partyID {:optional true}]
-                          [:contract/stateID {:optional true}]]
-    :clause/clauseID     :uuid
-    :clause/template     :string
-    :clause/text         :string
-    :clause/model        :string
-    :clause/logic        :string
-    :clause/partyID      :string
-    :clause/stateID      :string
-    :clause              [:map
-                          [:crux.db/id :clause/clauseID]
-                          [:clause/class]
-                          [:clause/template {:optional true}]
-                          [:clause/text {:optional true}]
-                          [:clause/model {:optional true}]
-                          [:clause/logic {:optional true}]
-                          [:clause/partyID {:optional true}]
-                          [:clause/stateID {:optional true}]]
-    }])
+  {:user/id             :uuid
+   :user/email          :string
+   :user                [:map {:closed true}
+                         [:crux.db/id :user/id]
+                         :user/email]
+   :msg/id              :uuid
+   :msg/user            :user/id
+   :msg/text            :string
+   :msg/sent-at         inst?
+   :msg                 [:map {:closed true}
+                         [:crux.db/id :msg/id]
+                         :msg/user
+                         :msg/text
+                         :msg/sent-at]
+   :contract/contractID :uuid
+   :contract/$class     :string
+   :contract/template   :string
+   :contract/text       :string
+   :contract/model      :string
+   :contract/logic      :string
+   :contract/partyID    :string
+   :contract/stateID    :string
+   :contract            [:map
+                         [:crux.db/id :contract/contractID]
+                         [:contract/$class]
+                         [:contract/template {:optional true}]
+                         [:contract/text {:optional true}]
+                         [:contract/model {:optional true}]
+                         [:contract/logic {:optional true}]
+                         [:contract/partyID {:optional true}]
+                         [:contract/stateID {:optional true}]]
+   :clause/clauseID     :uuid
+   :clause/$class       :string
+   :clause/template     :string
+   :clause/text         :string
+   :clause/model        :string
+   :clause/logic        :string
+   :clause/partyID      :string
+   :clause/stateID      :string
+   :clause              [:map
+                         [:crux.db/id :clause/clauseID]
+                         [:clause/$class]
+                         [:clause/template {:optional true}]
+                         [:clause/text {:optional true}]
+                         [:clause/model {:optional true}]
+                         [:clause/logic {:optional true}]
+                         [:clause/partyID {:optional true}]
+                         [:clause/stateID {:optional true}]]
+   })
 
 (def schema (misc/map->MalliSchema
               {:doc-types  [:user :msg :contract :clause]
