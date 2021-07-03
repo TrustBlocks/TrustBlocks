@@ -12,7 +12,7 @@
 
 
 ;;;
-;;;  Stub for CLI Calls  - not presently used
+;;;  Stub for CLI Calls  - not presently used but may be used for Markdown transform or other items
 
 (defn run-cicero-cli
   "Simple proof of concept for parse from command line -- pretty slow"
@@ -24,8 +24,23 @@
 
 (def cicero-end "http://localhost:6001/")
 
+
+;;; Set template lib directory
+
+(def local-dir "/Users/tmb/Coding/Accord/cicero-template-library/src/")
+
+;; pull text from template library
+
+(defn get-sample
+  "Load sample md from file"
+  [k]
+  (slurp (str local-dir k "/text/sample.md")))
+
 ;;; Basic Parse this takes text in Markdown - that conforms to the template -
-;;; It returns the Data in JSON
+;;; It returns the Data in JSON with an ID
+;;; At least in the present version the document to parse has to have key of sample
+;;; The contract is the library template
+
 
 (defn cicero-parse
   "Parsing API call"
@@ -38,13 +53,44 @@
                   :form-params  {"sample" sample}}))
   )
 
+
+;;; simplify call from local library
+;;
+
+
+(defn parse-lib
+  "parse sample from library"
+  [contract]
+  (cicero-parse contract (get-sample contract)))
+
+
+;;; Normalizes contract data for Crux
+;;; converts the created UUID to a Valid UUID for Crux
+
 (defn normalize-contract [{:keys [contractId] :as parsed-contract}]
   (-> (bu/prepend-keys "contract" parsed-contract)
       (dissoc :contract/contractId)
       (assoc :crux.db/id (java.util.UUID/fromString contractId))))
 
 
+;;; utility predicate to insure contact matches schema declared in Registry
+
+
+; (proto/valid? schema :contract contract) ; true
+
+;;; Function to put everything together
+
+
+(defn set-contract
+  [template sample]
+  (let [contract (normalize-contract (cicero-parse template sample))]
+    (bcrux/submit-tx
+      (sys)
+      {[:contract (:crux.db/id contract)] contract})))
+
 ;;; Basic draft function - this takes a template and JSON to return a Markdown Document
+;;; This could be used to create a new contract instance
+
 
 (defn cicero-draft
   "Draft API Call"
@@ -58,10 +104,9 @@
 
 (comment
 
+  (proto/valid? schema :contract contract) ; true
 
-  ;;; Getting into database
-  ;;;
-
+  (set-contract "latedeliveryandpenalty" sample)
 
   (def contract (normalize-contract (cicero-parse "latedeliveryandpenalty" sample)))
   ;; =>
@@ -80,29 +125,34 @@
    :contract/penaltyDuration
    {:$class "org.accordproject.time.Duration", :amount 2, :unit "days"}}
 
+
   (proto/valid? schema :contract contract) ; true
+
+(cicero-parse "latedeliveryandpenalty" sample)
+
+(normalize-contract delta)
+  (-> (bu/prepend-keys "contract" (:keys delta))
+      (dissoc :contract/contractId))
+
+  (:keys delta)
+
+  (dissoc :contract/contractId)
+
+;;; Submit transaction
 
   (bcrux/submit-tx
     (sys)
     {[:contract (:crux.db/id contract)] contract})
+
+;;; Query
 
   (let [{:keys [biff.crux/db]} (sys)]
     (crux/q @db
             '{:find [(pull contract [*])]
               :where [[contract :contract/$class]]}))
 
-
-  (bcrux/submit-tx  ;; ClassCastException
-    (assoc sys :biff.crux/authorize true)
-    (cicero-parse "latedeliveryandpenalty" sample))
-
-  (bcrux/submit-tx  ;; TX doesn't math schema
-    sys
-    (cicero-parse "latedeliveryandpenalty" sample))
-
   ;;; results from cicero-parse
   ;;;
-  (assoc sys :biff.crux/authorize true)
   (def delta
     {:contractId        "92c57f20-dda0-4511-bd2b-d3f6bb4dfedc",
      :penaltyDuration   {:$class "org.accordproject.time.Duration", :amount 2, :unit "days"},
@@ -116,30 +166,12 @@
      :penaltyPercentage 10.5,
      :seller            "resource:org.accordproject.party.Party#Jacob"})
 
-
+(bu/prepend-keys "contract" delta)
   ;;; Curl Request from Docs
 
   (def sample "## Late Delivery and Penalty.\n\n In case of delayed delivery except for Force Majeure cases,\n\"Dan\" (the Seller) shall pay to \"Steve\" (the Buyer) for every 2 days\nof delay penalty amounting to 10.5% of the total value of the Equipment\nwhose delivery has been delayed. Any fractional part of a days is to be\nconsidered a full days. The total amount of penalty shall not however,\nexceed 55% of the total value of the Equipment involved in late delivery.\nIf the delay is more than 15 days, the Buyer is entitled to terminate this Contract.")
 
-
-  (cicero-draft "latedeliveryandpenalty" delta)
-
-
-  (cicero-draft "latedeliveryandpenalty" draft)
-
-  (cicero-parse "latedeliveryandpenalty" sample)
-
-  ;;; Proper format from Jacob
-
-  (:body
-    (client/post "http://localhost:6001/draft/latedeliveryandpenalty"
-                 {:content-type :json
-                  :accept       :json
-                  :as           :json
-                  :form-params  {"draft" draft}}))
-
-
-
+  (hello-sample "")
 
   ;;; Grab a json model from the model repository
   (client/get "https://models.accordproject.org/accordproject/party.json")
@@ -147,7 +179,8 @@
   )
 
 
-(comment -- CLI Tests
+(comment -- CLI Tests using portal
+
          (run-cicero "promissory-note")
          (p/open)                                           ;Open Portal Browser
          (add-tap #'p/submit)                               ;add p as portal target
@@ -160,10 +193,4 @@
          (str/split k)
          (println (str/split-lines k))
 
-
-         ;; Cut and paste removing first two lines ----
-
-         (def jk (json/read-str "{\n  \"$class\": \"org.accordproject.promissorynote.PromissoryNoteContract\",\n  \"amount\": {\n    \"$class\": \"org.accordproject.money.MonetaryAmount\",\n    \"doubleValue\": 1000,\n    \"currencyCode\": \"USD\"\n  },\n  \"date\": \"2018-01-30T00:00:00.000-04:00\",\n  \"maker\": \"Daniel\",\n  \"interestRate\": 3.8,\n  \"individual\": true,\n  \"makerAddress\": \"1 Main Street\",\n  \"lender\": \"Clause Inc.\",\n  \"legalEntity\": \"CORP\",\n  \"lenderAddress\": \"246 5th Ave, 3rd Fl, New York, NY 10001\",\n  \"principal\": {\n    \"$class\": \"org.accordproject.money.MonetaryAmount\",\n    \"doubleValue\": 500,\n    \"currencyCode\": \"USD\"\n  },\n  \"maturityDate\": \"2019-01-20T00:00:00.000-04:00\",\n  \"defaultDays\": 90,\n  \"insolvencyDays\": 90,\n  \"jurisdiction\": \"New York, NY\",\n  \"contractId\": \"c331ee37-16ee-49c7-923d-e9014fbf6d4c\",\n  \"$identifier\": \"c331ee37-16ee-49c7-923d-e9014fbf6d4c\"\n} "))
-
-         (tap> jk)                                          ;Works in Portal
          )
