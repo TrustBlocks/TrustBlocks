@@ -15,6 +15,7 @@
     "@accordproject/concerto-core": "1.0.0",
     "@accordproject/ergo-compiler": "0.22.0",
     "@accordproject/ergo-engine": "0.22.0",
+    "react-jsonschema-form": "1.8.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
   },

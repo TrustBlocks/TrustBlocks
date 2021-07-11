@@ -2,11 +2,16 @@
   (:require [biff.util :as bu]
             [biff.util.protocols :as proto]
             [biff.crux :as bcrux]
+            [cybermonday.core :as cm]
+            [cybermonday.ir :as ir]
+            [malli.provider :as mp]
+            [cheshire.core :refer :all]
+            [clojure.walk :as walk]
+            [malli.json-schema :as json-schema]
             [crux.api :as crux]
             [trustblocks.admin :refer [sys]]
             [trustblocks.rules :refer [schema]]
             [clj-http.client :as client]
-            [portal.api :as p]
             [clojure.string :as str]
             [clojure.data.json :as json]))
 
@@ -36,6 +41,21 @@
   [k]
   (slurp (str local-dir k "/text/sample.md")))
 
+(defn get-template
+  "Load sample md from file"
+  [k]
+  (slurp (str local-dir k "/text/grammar.tem.md")))
+
+(defn sample-ast
+  "Markdown to AST"
+  [sample]
+  (ir/md-to-ir (get-sample sample)))
+
+(defn template-ast
+  "Markdown to AST"
+  [sample]
+  (ir/md-to-ir (get-template sample)))
+
 ;;; Basic Parse this takes text in Markdown - that conforms to the template -
 ;;; It returns the Data in JSON with an ID
 ;;; At least in the present version the document to parse has to have key of sample
@@ -53,9 +73,29 @@
                   :form-params  {"sample" sample}}))
   )
 
+(comment
+
+  (template-ast "promissory-note")
+
+  (sample-ast "promissory-note")
+  (mm/post (str cicero-end "parse" "promissory-note")
+           {:headers
+            {"content-type" "json"
+              "accept" "json"
+              "as" "json"
+             "form-params" {"sample" (parse-lib sample)}}})
+  )
+
 
 ;;; simplify call from local library
-;;
+;;; uses the input to retreive template and parse markdown
+
+
+
+(defn normalize-contract [{:keys [contractId] :as parsed-contract}]
+  (-> (bu/prepend-keys "contract" parsed-contract)
+      (dissoc :contract/contractId)
+      (assoc :crux.db/id (java.util.UUID/fromString contractId))))
 
 
 (defn parse-lib
@@ -63,15 +103,45 @@
   [contract]
   (cicero-parse contract (get-sample contract)))
 
+(defn parse-normalize-lib
+  "parse and normalize sample from library"
+  [contract]
+  (-> (parse-lib contract)
+      (normalize-contract)))
 
+(defn parse-normalize-with-text
+  [contract]
+  (-> (parse-lib contract)
+      (normalize-contract)
+      (dissoc :contract/text)
+      (assoc :contract/text (sample-ast contract))))
+
+;; Convert the parsed template into a Malli Schema.
+
+(parse-lib "promissory-note")
+
+(defn make-schema
+  "Makes a schema from a parsed K"
+  [contract]
+   (mp/provide (vector (parse-lib contract)))
+  )
+
+(defn make-json-schema
+  "Makes json-schema from malli schema"
+  [contract]
+  (-> (make-schema contract)
+      (json-schema/transform)))
+
+(defn make-json-schema-string
+  "Makes json-schema from malli schema"
+  [contract]
+  (-> (make-schema contract)
+      (json-schema/transform)
+      (generate-string)))
+
+;(make-json-schema-string "promissory-note")
 ;;; Normalizes contract data for Crux
 ;;; converts the created UUID to a Valid UUID for Crux
-
-(defn normalize-contract [{:keys [contractId] :as parsed-contract}]
-  (-> (bu/prepend-keys "contract" parsed-contract)
-      (dissoc :contract/contractId)
-      (assoc :crux.db/id (java.util.UUID/fromString contractId))))
-
 
 ;;; utility predicate to insure contact matches schema declared in Registry
 
@@ -81,12 +151,30 @@
 ;;; Function to put everything together
 
 
-(defn set-contract
+(defn submit-contract
+  "submit contract data to crux"
   [template sample]
   (let [contract (normalize-contract (cicero-parse template sample))]
     (bcrux/submit-tx
       (sys)
       {[:contract (:crux.db/id contract)] contract})))
+
+(defn validate-contract
+  "Validate a contract from the library"
+  [contract]
+  (proto/valid? schema :contract (parse-normalize-lib contract))) ; true
+
+
+(defn set-contract-from-lib
+  "get a sample from the lib on disk"
+  [sample]
+  (let [contract (normalize-contract (parse-lib sample))]
+    (bcrux/submit-tx
+      (sys)
+      {[:contract (:crux.db/id contract)] contract})))
+
+
+
 
 ;;; Basic draft function - this takes a template and JSON to return a Markdown Document
 ;;; This could be used to create a new contract instance
@@ -104,9 +192,42 @@
 
 (comment
 
-  (proto/valid? schema :contract contract) ; true
+  (parse-normalize-with-text "promissory-note")
+  (validate-contract "promissory-note")
+   (parse-normalize-lib "promissory-note")
 
-  (set-contract "latedeliveryandpenalty" sample)
+  (set-contract-from-lib "promissory-note" )
+  (make-schema "helloworld")
+  (walk/stringify-keys (make-schema "hello-world"))
+
+  ;; Make a Malli schema from a template
+  ;; transform it to json-schema
+
+  (json-schema/transform (make-schema "promissory-note" ) {:pretty true})
+ (make-schema "helloworld")
+  (generate-string (json-schema/transform (make-schema "helloworld") {:pretty true}))
+
+  (def sch {"type" "object",
+            "properties" {"$class" {"type" "string"},
+                          "name" {"type" "string"},
+                          "clauseId" {"type" "string"},
+                          "$identifier" {"type" "string"}},
+            "required" ["$class" "name" "clauseId" "$identifier"]})
+
+  (parse-string (generate-string (json-schema/transform (make-schema "helloworld") )))
+   (generate-string sch)
+  (make-schema "helloworld")
+  (json-schema/transform (make-schema "helloworld"))
+  (parse-string (generate-string sch))
+  (cicero-parse "promissory-note" (parse-lib "promissory-note"))
+  (normalize-contract (parse-lib "promissory-note") )
+  (parse-lib, "promissory-note")
+  (mp/provide (vector (parse-lib "promissory-note")))
+  (cicero-draft "promissory-note" (parse-lib "promissory-note"))
+
+  (proto/valid? schema :contract (parse-normalize-lib "promissory-note") ) ; true
+   (make-schema "promissory-note")
+  (set-contract "promissory-note" (get-sample "promissory-note"))
 
   (def contract (normalize-contract (cicero-parse "latedeliveryandpenalty" sample)))
   ;; =>
@@ -124,10 +245,10 @@
    :contract/$identifier "ed3dcee9-2bb7-4871-9c04-0c21ed09b854",
    :contract/penaltyDuration
    {:$class "org.accordproject.time.Duration", :amount 2, :unit "days"}}
-
-
+  (def k2 (parse-lib "promissory-note"))
+   (prn k2)
   (proto/valid? schema :contract contract) ; true
-
+(parse-lib "latedeliveryandpenalty")
 (cicero-parse "latedeliveryandpenalty" sample)
 
 (normalize-contract delta)
@@ -174,9 +295,7 @@
   (hello-sample "")
 
   ;;; Grab a json model from the model repository
-  (client/get "https://models.accordproject.org/accordproject/party.json")
-
-  )
+  (client/get "https://models.accordproject.org/accordproject/party.json"))
 
 
 (comment -- CLI Tests using portal
