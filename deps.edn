@@ -1,6 +1,7 @@
 {:paths ["src" "resources" "target/resources"]
  :deps {metosin/malli {:mvn/version "0.5.1"},
         com.kiranshila/cybermonday {:mvn/version "0.2.0"},
+        org.arachne-framework/arachne-fileset {:mvn/version "1.0.0-beta1"},
         metosin/jsonista {:mvn/version "0.3.3"},
         cheshire/cheshire {:mvn/version "5.10.0"},
         biff/main {:git/url "https://github.com/jacobobryant/biff"

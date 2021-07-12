@@ -4,6 +4,8 @@
             [biff.crux :as bcrux]
             [cybermonday.core :as cm]
             [cybermonday.ir :as ir]
+            [arachne.fileset :as fs]
+            [clojure.java.io :as io]
             [malli.provider :as mp]
             [cheshire.core :refer :all]
             [clojure.walk :as walk]
@@ -19,6 +21,9 @@
 ;;;
 ;;;  Stub for CLI Calls  - not presently used but may be used for Markdown transform or other items
 
+
+
+
 (defn run-cicero-cli
   "Simple proof of concept for parse from command line -- pretty slow"
   [contract]
@@ -32,7 +37,27 @@
 
 ;;; Set template lib directory
 
+
 (def local-dir "/Users/tmb/Coding/Accord/cicero-template-library/src/")
+
+;; Luke VanderHart - Arachne fileset https://github.com/arachne-framework/arachne-fileset
+;; to work with local directories
+;; Reading files in a fileset
+;; You can list the files in a fileset using ls, which returns a collection of paths
+;; that are present in the fileset.
+;;
+;; For each path, you can use any of the following functions:
+;;
+;; hash - get the MD5 hash of a file
+;; timestamp - get the "last modified" time of a file
+;; content - open a java.io.InputStream on the content of the file.
+;; file - Get an immutable java.io.File for the File representation.
+;; The file will be located in a temp directory and be named according
+;; to its content hash and timestamp, not the file path.
+
+;; pull in the entire src directory -- all the template files
+
+(def cicero-fileset (fs/add (fs/fileset) (io/file local-dir)))
 
 ;; pull text from template library
 
