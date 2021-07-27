@@ -1,0 +1,1406 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "concerto.metamodel.DecoratorString": {
+      "title": "DecoratorString",
+      "description": "An instance of concerto.metamodel.DecoratorString",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.DecoratorString",
+          "pattern": "^concerto\\.metamodel\\.DecoratorString$",
+          "description": "The class identifier for this type"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "$class",
+        "value"
+      ]
+    },
+    "concerto.metamodel.DecoratorNumber": {
+      "title": "DecoratorNumber",
+      "description": "An instance of concerto.metamodel.DecoratorNumber",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.DecoratorNumber",
+          "pattern": "^concerto\\.metamodel\\.DecoratorNumber$",
+          "description": "The class identifier for this type"
+        },
+        "value": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "$class",
+        "value"
+      ]
+    },
+    "concerto.metamodel.DecoratorBoolean": {
+      "title": "DecoratorBoolean",
+      "description": "An instance of concerto.metamodel.DecoratorBoolean",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.DecoratorBoolean",
+          "pattern": "^concerto\\.metamodel\\.DecoratorBoolean$",
+          "description": "The class identifier for this type"
+        },
+        "value": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "$class",
+        "value"
+      ]
+    },
+    "concerto.metamodel.TypeIdentifier": {
+      "title": "TypeIdentifier",
+      "description": "An instance of concerto.metamodel.TypeIdentifier",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.TypeIdentifier",
+          "pattern": "^concerto\\.metamodel\\.TypeIdentifier$",
+          "description": "The class identifier for this type"
+        },
+        "name": {
+          "type": "string",
+          "$decorators": {
+            "FormEditor": [
+              "selectOptions",
+              "types"
+            ]
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "name"
+      ]
+    },
+    "concerto.metamodel.DecoratorIdentifier": {
+      "title": "DecoratorIdentifier",
+      "description": "An instance of concerto.metamodel.DecoratorIdentifier",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.DecoratorIdentifier",
+          "pattern": "^concerto\\.metamodel\\.DecoratorIdentifier$",
+          "description": "The class identifier for this type"
+        },
+        "identifier": {
+          "$ref": "#/definitions/concerto.metamodel.TypeIdentifier"
+        },
+        "isArray": {
+          "default": "false",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "$class",
+        "identifier",
+        "isArray"
+      ]
+    },
+    "concerto.metamodel.Decorator": {
+      "title": "Decorator",
+      "description": "An instance of concerto.metamodel.Decorator",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.Decorator",
+          "pattern": "^concerto\\.metamodel\\.Decorator$",
+          "description": "The class identifier for this type"
+        },
+        "name": {
+          "type": "string"
+        },
+        "arguments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.DecoratorLiteral"
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "name"
+      ]
+    },
+    "concerto.metamodel.Identified": {
+      "title": "Identified",
+      "description": "An instance of concerto.metamodel.Identified",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.Identified",
+          "pattern": "^concerto\\.metamodel\\.Identified$",
+          "description": "The class identifier for this type"
+        }
+      },
+      "required": [
+        "$class"
+      ]
+    },
+    "concerto.metamodel.IdenfiedBy": {
+      "title": "IdenfiedBy",
+      "description": "An instance of concerto.metamodel.IdenfiedBy",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.IdenfiedBy",
+          "pattern": "^concerto\\.metamodel\\.IdenfiedBy$",
+          "description": "The class identifier for this type"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "$class",
+        "name"
+      ]
+    },
+    "concerto.metamodel.AssetDeclaration": {
+      "title": "AssetDeclaration",
+      "description": "An instance of concerto.metamodel.AssetDeclaration",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.AssetDeclaration",
+          "pattern": "^concerto\\.metamodel\\.AssetDeclaration$",
+          "description": "The class identifier for this type"
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Decorator"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "isAbstract": {
+          "default": "false",
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "name"
+            ]
+          }
+        },
+        "identified": {
+          "$ref": "#/definitions/concerto.metamodel.Identified"
+        },
+        "superType": {
+          "$ref": "#/definitions/concerto.metamodel.TypeIdentifier",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "parentType"
+            ]
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.FieldDeclaration"
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "isAbstract",
+        "name",
+        "fields"
+      ]
+    },
+    "concerto.metamodel.ParticipantDeclaration": {
+      "title": "ParticipantDeclaration",
+      "description": "An instance of concerto.metamodel.ParticipantDeclaration",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.ParticipantDeclaration",
+          "pattern": "^concerto\\.metamodel\\.ParticipantDeclaration$",
+          "description": "The class identifier for this type"
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Decorator"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "isAbstract": {
+          "default": "false",
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "name"
+            ]
+          }
+        },
+        "identified": {
+          "$ref": "#/definitions/concerto.metamodel.Identified"
+        },
+        "superType": {
+          "$ref": "#/definitions/concerto.metamodel.TypeIdentifier",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "parentType"
+            ]
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.FieldDeclaration"
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "isAbstract",
+        "name",
+        "fields"
+      ]
+    },
+    "concerto.metamodel.TransactionDeclaration": {
+      "title": "TransactionDeclaration",
+      "description": "An instance of concerto.metamodel.TransactionDeclaration",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.TransactionDeclaration",
+          "pattern": "^concerto\\.metamodel\\.TransactionDeclaration$",
+          "description": "The class identifier for this type"
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Decorator"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "isAbstract": {
+          "default": "false",
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "name"
+            ]
+          }
+        },
+        "identified": {
+          "$ref": "#/definitions/concerto.metamodel.Identified"
+        },
+        "superType": {
+          "$ref": "#/definitions/concerto.metamodel.TypeIdentifier",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "parentType"
+            ]
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.FieldDeclaration"
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "isAbstract",
+        "name",
+        "fields"
+      ]
+    },
+    "concerto.metamodel.EventDeclaration": {
+      "title": "EventDeclaration",
+      "description": "An instance of concerto.metamodel.EventDeclaration",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.EventDeclaration",
+          "pattern": "^concerto\\.metamodel\\.EventDeclaration$",
+          "description": "The class identifier for this type"
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Decorator"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "isAbstract": {
+          "default": "false",
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "name"
+            ]
+          }
+        },
+        "identified": {
+          "$ref": "#/definitions/concerto.metamodel.Identified"
+        },
+        "superType": {
+          "$ref": "#/definitions/concerto.metamodel.TypeIdentifier",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "parentType"
+            ]
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.FieldDeclaration"
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "isAbstract",
+        "name",
+        "fields"
+      ]
+    },
+    "concerto.metamodel.ConceptDeclaration": {
+      "title": "ConceptDeclaration",
+      "description": "An instance of concerto.metamodel.ConceptDeclaration",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.ConceptDeclaration",
+          "pattern": "^concerto\\.metamodel\\.ConceptDeclaration$",
+          "description": "The class identifier for this type"
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Decorator"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "isAbstract": {
+          "default": "false",
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "name"
+            ]
+          }
+        },
+        "identified": {
+          "$ref": "#/definitions/concerto.metamodel.Identified"
+        },
+        "superType": {
+          "$ref": "#/definitions/concerto.metamodel.TypeIdentifier",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "parentType"
+            ]
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.FieldDeclaration"
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "isAbstract",
+        "name",
+        "fields"
+      ]
+    },
+    "concerto.metamodel.EnumDeclaration": {
+      "title": "EnumDeclaration",
+      "description": "An instance of concerto.metamodel.EnumDeclaration",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.EnumDeclaration",
+          "pattern": "^concerto\\.metamodel\\.EnumDeclaration$",
+          "description": "The class identifier for this type"
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Decorator"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "isAbstract": {
+          "default": "false",
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "name"
+            ]
+          }
+        },
+        "identified": {
+          "$ref": "#/definitions/concerto.metamodel.Identified"
+        },
+        "superType": {
+          "$ref": "#/definitions/concerto.metamodel.TypeIdentifier",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "parentType"
+            ]
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.FieldDeclaration"
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "isAbstract",
+        "name",
+        "fields"
+      ]
+    },
+    "concerto.metamodel.StringDefault": {
+      "title": "StringDefault",
+      "description": "An instance of concerto.metamodel.StringDefault",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.StringDefault",
+          "pattern": "^concerto\\.metamodel\\.StringDefault$",
+          "description": "The class identifier for this type"
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "$class",
+        "value"
+      ]
+    },
+    "concerto.metamodel.BooleanDefault": {
+      "title": "BooleanDefault",
+      "description": "An instance of concerto.metamodel.BooleanDefault",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.BooleanDefault",
+          "pattern": "^concerto\\.metamodel\\.BooleanDefault$",
+          "description": "The class identifier for this type"
+        },
+        "value": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "$class",
+        "value"
+      ]
+    },
+    "concerto.metamodel.IntegerDefault": {
+      "title": "IntegerDefault",
+      "description": "An instance of concerto.metamodel.IntegerDefault",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.IntegerDefault",
+          "pattern": "^concerto\\.metamodel\\.IntegerDefault$",
+          "description": "The class identifier for this type"
+        },
+        "value": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "$class",
+        "value"
+      ]
+    },
+    "concerto.metamodel.LongDefault": {
+      "title": "LongDefault",
+      "description": "An instance of concerto.metamodel.LongDefault",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.LongDefault",
+          "pattern": "^concerto\\.metamodel\\.LongDefault$",
+          "description": "The class identifier for this type"
+        },
+        "value": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "$class",
+        "value"
+      ]
+    },
+    "concerto.metamodel.DoubleDefault": {
+      "title": "DoubleDefault",
+      "description": "An instance of concerto.metamodel.DoubleDefault",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.DoubleDefault",
+          "pattern": "^concerto\\.metamodel\\.DoubleDefault$",
+          "description": "The class identifier for this type"
+        },
+        "value": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "$class",
+        "value"
+      ]
+    },
+    "concerto.metamodel.ObjectFieldDeclaration": {
+      "title": "ObjectFieldDeclaration",
+      "description": "An instance of concerto.metamodel.ObjectFieldDeclaration",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.ObjectFieldDeclaration",
+          "pattern": "^concerto\\.metamodel\\.ObjectFieldDeclaration$",
+          "description": "The class identifier for this type"
+        },
+        "defaultValue": {
+          "$ref": "#/definitions/concerto.metamodel.StringDefault",
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "type": {
+          "$ref": "#/definitions/concerto.metamodel.TypeIdentifier",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "typeIdentifier",
+              "selectOptions",
+              "types"
+            ]
+          }
+        },
+        "name": {
+          "type": "string"
+        },
+        "isArray": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isArray?"
+            ]
+          }
+        },
+        "isOptional": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isOptional?"
+            ]
+          }
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Decorator"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "type",
+        "name",
+        "isArray",
+        "isOptional"
+      ]
+    },
+    "concerto.metamodel.EnumFieldDeclaration": {
+      "title": "EnumFieldDeclaration",
+      "description": "An instance of concerto.metamodel.EnumFieldDeclaration",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.EnumFieldDeclaration",
+          "pattern": "^concerto\\.metamodel\\.EnumFieldDeclaration$",
+          "description": "The class identifier for this type"
+        },
+        "name": {
+          "type": "string"
+        },
+        "isArray": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isArray?"
+            ]
+          }
+        },
+        "isOptional": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isOptional?"
+            ]
+          }
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Decorator"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "name",
+        "isArray",
+        "isOptional"
+      ]
+    },
+    "concerto.metamodel.BooleanFieldDeclaration": {
+      "title": "BooleanFieldDeclaration",
+      "description": "An instance of concerto.metamodel.BooleanFieldDeclaration",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.BooleanFieldDeclaration",
+          "pattern": "^concerto\\.metamodel\\.BooleanFieldDeclaration$",
+          "description": "The class identifier for this type"
+        },
+        "defaultValue": {
+          "$ref": "#/definitions/concerto.metamodel.BooleanDefault",
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "name": {
+          "type": "string"
+        },
+        "isArray": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isArray?"
+            ]
+          }
+        },
+        "isOptional": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isOptional?"
+            ]
+          }
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Decorator"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "name",
+        "isArray",
+        "isOptional"
+      ]
+    },
+    "concerto.metamodel.DateTimeFieldDeclaration": {
+      "title": "DateTimeFieldDeclaration",
+      "description": "An instance of concerto.metamodel.DateTimeFieldDeclaration",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.DateTimeFieldDeclaration",
+          "pattern": "^concerto\\.metamodel\\.DateTimeFieldDeclaration$",
+          "description": "The class identifier for this type"
+        },
+        "name": {
+          "type": "string"
+        },
+        "isArray": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isArray?"
+            ]
+          }
+        },
+        "isOptional": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isOptional?"
+            ]
+          }
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Decorator"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "name",
+        "isArray",
+        "isOptional"
+      ]
+    },
+    "concerto.metamodel.StringFieldDeclaration": {
+      "title": "StringFieldDeclaration",
+      "description": "An instance of concerto.metamodel.StringFieldDeclaration",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.StringFieldDeclaration",
+          "pattern": "^concerto\\.metamodel\\.StringFieldDeclaration$",
+          "description": "The class identifier for this type"
+        },
+        "defaultValue": {
+          "$ref": "#/definitions/concerto.metamodel.StringDefault",
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "validator": {
+          "$ref": "#/definitions/concerto.metamodel.StringRegexValidator",
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "name": {
+          "type": "string"
+        },
+        "isArray": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isArray?"
+            ]
+          }
+        },
+        "isOptional": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isOptional?"
+            ]
+          }
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Decorator"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "name",
+        "isArray",
+        "isOptional"
+      ]
+    },
+    "concerto.metamodel.StringRegexValidator": {
+      "title": "StringRegexValidator",
+      "description": "An instance of concerto.metamodel.StringRegexValidator",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.StringRegexValidator",
+          "pattern": "^concerto\\.metamodel\\.StringRegexValidator$",
+          "description": "The class identifier for this type"
+        },
+        "regex": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "$class",
+        "regex"
+      ]
+    },
+    "concerto.metamodel.DoubleDomainValidator": {
+      "title": "DoubleDomainValidator",
+      "description": "An instance of concerto.metamodel.DoubleDomainValidator",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.DoubleDomainValidator",
+          "pattern": "^concerto\\.metamodel\\.DoubleDomainValidator$",
+          "description": "The class identifier for this type"
+        },
+        "lower": {
+          "type": "number"
+        },
+        "upper": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "$class"
+      ]
+    },
+    "concerto.metamodel.IntegerDomainValidator": {
+      "title": "IntegerDomainValidator",
+      "description": "An instance of concerto.metamodel.IntegerDomainValidator",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.IntegerDomainValidator",
+          "pattern": "^concerto\\.metamodel\\.IntegerDomainValidator$",
+          "description": "The class identifier for this type"
+        },
+        "lower": {
+          "type": "integer"
+        },
+        "upper": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "$class"
+      ]
+    },
+    "concerto.metamodel.LongDomainValidator": {
+      "title": "LongDomainValidator",
+      "description": "An instance of concerto.metamodel.LongDomainValidator",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.LongDomainValidator",
+          "pattern": "^concerto\\.metamodel\\.LongDomainValidator$",
+          "description": "The class identifier for this type"
+        },
+        "lower": {
+          "type": "integer"
+        },
+        "upper": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "$class"
+      ]
+    },
+    "concerto.metamodel.DoubleFieldDeclaration": {
+      "title": "DoubleFieldDeclaration",
+      "description": "An instance of concerto.metamodel.DoubleFieldDeclaration",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.DoubleFieldDeclaration",
+          "pattern": "^concerto\\.metamodel\\.DoubleFieldDeclaration$",
+          "description": "The class identifier for this type"
+        },
+        "defaultValue": {
+          "$ref": "#/definitions/concerto.metamodel.DoubleDefault"
+        },
+        "validator": {
+          "$ref": "#/definitions/concerto.metamodel.DoubleDomainValidator"
+        },
+        "name": {
+          "type": "string"
+        },
+        "isArray": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isArray?"
+            ]
+          }
+        },
+        "isOptional": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isOptional?"
+            ]
+          }
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Decorator"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "name",
+        "isArray",
+        "isOptional"
+      ]
+    },
+    "concerto.metamodel.IntegerFieldDeclaration": {
+      "title": "IntegerFieldDeclaration",
+      "description": "An instance of concerto.metamodel.IntegerFieldDeclaration",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.IntegerFieldDeclaration",
+          "pattern": "^concerto\\.metamodel\\.IntegerFieldDeclaration$",
+          "description": "The class identifier for this type"
+        },
+        "defaultValue": {
+          "$ref": "#/definitions/concerto.metamodel.IntegerDefault",
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "validator": {
+          "$ref": "#/definitions/concerto.metamodel.IntegerDomainValidator",
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "name": {
+          "type": "string"
+        },
+        "isArray": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isArray?"
+            ]
+          }
+        },
+        "isOptional": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isOptional?"
+            ]
+          }
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Decorator"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "name",
+        "isArray",
+        "isOptional"
+      ]
+    },
+    "concerto.metamodel.LongFieldDeclaration": {
+      "title": "LongFieldDeclaration",
+      "description": "An instance of concerto.metamodel.LongFieldDeclaration",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.LongFieldDeclaration",
+          "pattern": "^concerto\\.metamodel\\.LongFieldDeclaration$",
+          "description": "The class identifier for this type"
+        },
+        "defaultValue": {
+          "$ref": "#/definitions/concerto.metamodel.LongDefault",
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "validator": {
+          "$ref": "#/definitions/concerto.metamodel.LongDomainValidator",
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "name": {
+          "type": "string"
+        },
+        "isArray": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isArray?"
+            ]
+          }
+        },
+        "isOptional": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isOptional?"
+            ]
+          }
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Decorator"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "name",
+        "isArray",
+        "isOptional"
+      ]
+    },
+    "concerto.metamodel.RelationshipDeclaration": {
+      "title": "RelationshipDeclaration",
+      "description": "An instance of concerto.metamodel.RelationshipDeclaration",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.RelationshipDeclaration",
+          "pattern": "^concerto\\.metamodel\\.RelationshipDeclaration$",
+          "description": "The class identifier for this type"
+        },
+        "type": {
+          "$ref": "#/definitions/concerto.metamodel.TypeIdentifier",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "typeIdentifier",
+              "selectOptions",
+              "types"
+            ]
+          }
+        },
+        "name": {
+          "type": "string"
+        },
+        "isArray": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isArray?"
+            ]
+          }
+        },
+        "isOptional": {
+          "type": "boolean",
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "isOptional?"
+            ]
+          }
+        },
+        "decorators": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Decorator"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "type",
+        "name",
+        "isArray",
+        "isOptional"
+      ]
+    },
+    "concerto.metamodel.ImportAll": {
+      "title": "ImportAll",
+      "description": "An instance of concerto.metamodel.ImportAll",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.ImportAll",
+          "pattern": "^concerto\\.metamodel\\.ImportAll$",
+          "description": "The class identifier for this type"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "uri": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "$class",
+        "namespace"
+      ]
+    },
+    "concerto.metamodel.ImportType": {
+      "title": "ImportType",
+      "description": "An instance of concerto.metamodel.ImportType",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.ImportType",
+          "pattern": "^concerto\\.metamodel\\.ImportType$",
+          "description": "The class identifier for this type"
+        },
+        "identifier": {
+          "$ref": "#/definitions/concerto.metamodel.TypeIdentifier"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "uri": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "$class",
+        "identifier",
+        "namespace"
+      ]
+    },
+    "concerto.metamodel.ModelFile": {
+      "title": "ModelFile",
+      "description": "An instance of concerto.metamodel.ModelFile",
+      "type": "object",
+      "properties": {
+        "$class": {
+          "type": "string",
+          "default": "concerto.metamodel.ModelFile",
+          "pattern": "^concerto\\.metamodel\\.ModelFile$",
+          "description": "The class identifier for this type"
+        },
+        "namespace": {
+          "type": "string",
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "imports": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.Import"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "hide",
+              true
+            ]
+          }
+        },
+        "declarations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/concerto.metamodel.ClassDeclaration"
+          },
+          "$decorators": {
+            "FormEditor": [
+              "title",
+              "classes"
+            ]
+          }
+        }
+      },
+      "required": [
+        "$class",
+        "namespace"
+      ]
+    }
+  }
+}
