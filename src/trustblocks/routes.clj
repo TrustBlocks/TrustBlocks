@@ -1,6 +1,5 @@
 (ns trustblocks.routes
   (:require [biff.crux :as bcrux]
-            [biff.glue :as glue]
             [biff.rum :as br]
             [biff.util :as bu]
             [clojure.edn :as edn]
@@ -90,8 +89,15 @@
          (when submitted
            [:.font-bold.my-3 "Transaction submitted successfully."]))])))
 
+
 (defn form-tx [req]
-  (glue/handle-form-tx req {:coercions {:text identity}}))
+  (let [[biff-tx path] (biff.misc/parse-form-tx
+                        req
+                        {:coercions {:text identity}})]
+    (biff.crux/submit-tx (assoc req :biff.crux/authorize true) biff-tx)
+    {:status 302
+     :headers/location path}))
+
 
 ; See https://cljdoc.org/d/metosin/reitit/0.5.10/doc/introduction#ring-router
 (defn routes []

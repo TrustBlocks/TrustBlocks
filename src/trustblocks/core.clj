@@ -15,18 +15,17 @@
   [use-env
    misc/use-nrepl
    bcrux/use-crux
-   (fn [sys]
-     (update sys :biff.sente/event-handler bcrux/wrap-db))
+   #(update % :biff.sente/event-handler
+            bcrux/wrap-db {:node (:biff.crux/node %)})
    misc/use-sente
-   bcrux/use-crux-sub
+   bcrux/use-crux-sub-notifier
    misc/use-reitit
-   (fn [sys]
-     (update sys :biff/handler bcrux/wrap-db))
-   (fn [sys]
-     (update sys :biff/handler wrap-authentication))
+   #(update % :biff/handler
+            bcrux/wrap-db {:node (:biff.crux/node %)})
+   #(update % :biff/handler wrap-authentication)
    mid/use-default-middleware
-   (fn [{:keys [biff/handler] :as sys}]
-     (assoc sys :biff.jetty/websockets {"/api/chsk" handler}))
+   #(assoc % :biff.jetty/websockets
+           {"/api/chsk" (:biff/handler %)})
    misc/use-jetty])
 
 (def config {:biff/schema              (fn [] schema)

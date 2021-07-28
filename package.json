@@ -10,14 +10,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "applied-science/js-interop": "0.2.7",
-    "@accordproject/cicero-core": "0.22.0",
-    "@accordproject/concerto-core": "1.0.0",
-    "@accordproject/ergo-compiler": "0.22.0",
-    "@accordproject/ergo-engine": "0.22.0",
-    "react-jsonschema-form": "1.8.1",
+    "html-entities": "2.3.2",
     "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react-dom": "^17.0.2",
+    "remark": "13.0.0",
+    "remark-footnotes": "3.0.0",
+    "remark-gfm": "1.0.0",
+    "remark-math": "4.0.0",
+    "remark-parse": "9.0.0",
+    "unified": "9.2.1",
+    "yaml": "1.10.2"
   },
   "devDependencies": {
     "shadow-cljs": "^2.13.0"

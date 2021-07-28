@@ -1,155 +1,177 @@
 (ns trustblocks.cicero
-  (:require [biff.util :as bu]
-            [biff.util.protocols :as proto]
-            [biff.crux :as bcrux]
-            [cybermonday.core :as cm]
-            [cybermonday.ir :as ir]
-            [arachne.fileset :as fs]
-            [clojure.java.io :as io]
-            [malli.provider :as mp]
-            [cheshire.core :refer :all]
-            [clojure.walk :as walk]
-            [malli.json-schema :as json-schema]
-            [crux.api :as crux]
-            [trustblocks.admin :refer [sys]]
-            [trustblocks.rules :refer [schema]]
-            [clj-http.client :as client]
-            [clojure.string :as str]
-            [clojure.data.json :as json]))
+    (:require 
+       [biff.util :as bu]
+       [biff.util.protocols :as proto]
+       [biff.crux :as bcrux]
+       [arachne.fileset :as fs]
+       [clojure.java.io :as io]
+       [cybermonday.core :as cm]
+       [cybermonday.ir :as ir]
+       [malli.provider :as mp]
+       [cheshire.core :refer :all]
+       [clojure.walk :as walk]
+       [malli.json-schema :as json-schema]
+       [trustblocks.admin :refer [sys]]
+       [trustblocks.rules :refer [schema]]
+       [clj-http.client :as client]
+       [clojure.string :as str]
+       [clojure.data.json :as json]))
 
 
-;;;
-;;;  Stub for CLI Calls  - not presently used but may be used for Markdown transform or other items
+;;;;;;;      CLI Experimentation       ;;;;;;
 
-
-
-
-(defn run-cicero-cli
-  "Simple proof of concept for parse from command line -- pretty slow"
-  [contract]
-  (let [cta (str "templates/" contract)]
-    (bu/sh "cicero" "parse" cta :out-enc "UTF-8")))
-
-;; Set up endpoint for local server
-
-(def cicero-end "http://localhost:6001/")
-
-
-;;; Set template lib directory
-
+;; Set up local directory
 
 (def local-dir "/Users/tmb/Coding/Accord/cicero-template-library/src/")
+(def cf-dir "/Users/tmb/coding/trustblocks/commonform.org/forms")
 
-;; Luke VanderHart - Arachne fileset https://github.com/arachne-framework/arachne-fileset
-;; to work with local directories
-;; Reading files in a fileset
-;; You can list the files in a fileset using ls, which returns a collection of paths
-;; that are present in the fileset.
-;;
-;; For each path, you can use any of the following functions:
-;;
-;; hash - get the MD5 hash of a file
-;; timestamp - get the "last modified" time of a file
-;; content - open a java.io.InputStream on the content of the file.
-;; file - Get an immutable java.io.File for the File representation.
-;; The file will be located in a temp directory and be named according
-;; to its content hash and timestamp, not the file path.
+;; run cicero test
+
+(defn run-cicero-cli
+      "Simple proof of concept for parse from command line -- pretty slow"
+      [contract]
+      (let [cta (str local-dir contract)]
+           (bu/sh "cicero" "parse" cta :out-enc "UTF-8")))
+
+;;;;;;;;;; Load and parse templates and samples from local directory  ;;;;;;;;;
+
+(defn get-sample
+       "Load sample md from file"
+       [k]
+       (slurp (str local-dir k "/text/sample.md")))
+
+ (defn get-template
+       [k]
+       (slurp (str local-dir k "/text/grammar.tem.md")))
+
+ (defn sample-ast
+       "Markdown Sample to AST"
+       [sample]
+       (ir/md-to-ir (get-sample sample)))
+
+ (defn template-ast
+       "Markdown Template to AST"
+       [sample]
+       (ir/md-to-ir (get-template sample)))
+
+
 
 ;; pull in the entire src directory -- all the template files
 
 (def cicero-fileset (fs/add (fs/fileset) (io/file local-dir)))
+(def subd (fs/add (fs/fileset) (io/file (str local-dir "promissory-note"))))
 
-;; pull text from template library
+ (comment
 
-(defn get-sample
-  "Load sample md from file"
-  [k]
-  (slurp (str local-dir k "/text/sample.md")))
+;;; Source directory listing
+   
+  (re-find #"(.*?)\/" "promissory-note/logic/logic.ergo")
+  
+   (defn get-dir [fileset]
+     (nth (re-find #"(.*?)\/" fileset) 1))
 
-(defn get-template
-  "Load sample md from file"
-  [k]
-  (slurp (str local-dir k "/text/grammar.tem.md")))
+     (map get-dir (fs/ls cicero-fileset)))
 
-(defn sample-ast
-  "Markdown to AST"
-  [sample]
-  (ir/md-to-ir (get-sample sample)))
+   (defn dir-set [fileset]
+     (into #{} (map get-dir (fs/ls fileset))))
+ 
+           (dir-set cicero-fileset)
+(get-dir cicero-fileset)
+   
+ (nth ["docusign-po-failure/" "docusign-po-failure"] 1)
 
-(defn template-ast
-  "Markdown to AST"
-  [sample]
-  (ir/md-to-ir (get-template sample)))
+ (fs/ls cicero-fileset)
+
+;;; Count the files
+ (count (fs/ls cicero-fileset))
+ 
+; pull text from template library
+
+ (fs/ls subd)
+   
+   )
+;;;
+;;;;;        Cicero- Server experimentation        ;;;;;;;;
+;;;
+;; Set up endpoint for local server
+
+
+(def cicero-end "http://localhost:6001/")
+
+;;; create samplle for dev purposes
+
+(def sample "## Late Delivery and Penalty.\n\n In case of delayed delivery except for Force Majeure cases,\n\"Dan\" (the Seller) shall pay to \"Steve\" (the Buyer) for every 2 days\nof delay penalty amounting to 10.5% of the total value of the Equipment\nwhose delivery has been delayed. Any fractional part of a days is to be\nconsidered a full days. The total amount of penalty shall not however,\nexceed 55% of the total value of the Equipment involved in late delivery.\nIf the delay is more than 15 days, the Buyer is entitled to terminate this Contract.")
+
+;;; Set template lib directory - already set above
+
+;; def local-dir "/Users/tmb/Coding/Accord/cicero-template-library/src/")
 
 ;;; Basic Parse this takes text in Markdown - that conforms to the template -
 ;;; It returns the Data in JSON with an ID
 ;;; At least in the present version the document to parse has to have key of sample
 ;;; The contract is the library template
 
-
-(defn cicero-parse
-  "Parsing API call"
-  [contract sample]
-  (:body
-    (client/post (str cicero-end "parse/" contract)
-                 {:content-type :json
-                  :accept       :json
-                  :as           :json
-                  :form-params  {"sample" sample}}))
-  )
-
-(comment
-
-  (template-ast "promissory-note")
-
-  (sample-ast "promissory-note")
-  (mm/post (str cicero-end "parse" "promissory-note")
-           {:headers
-            {"content-type" "json"
-              "accept" "json"
-              "as" "json"
-             "form-params" {"sample" (parse-lib sample)}}})
-  )
+ (defn cicero-parse
+       "Parsing API call"
+       [contract sample]
+       (:body
+         (client/post (str cicero-end "parse/" contract)
+                      {:content-type :json
+                       :accept       :json
+                       :as           :json
+                       :form-params  {"sample" sample}})))
 
 
-;;; simplify call from local library
-;;; uses the input to retreive template and parse markdown
+   (template-ast "promissory-note")
+
+    (sample-ast "promissory-note")
+
+ (defn parse-lib
+       "parse sample from library"
+       [contract]
+       (cicero-parse contract (get-sample contract)))
+
+  ;; (client/post (str cicero-end "parse" "promissory-note")
+  ;;           {:headers
+  ;;          {"content-type" "json"
+  ;;             "accept"       "json"
+  ;;            "as"           "json"
+  ;;             "form-params"  {"sample" (parse-lib sample)}}})
+
+;;;; simplify call from local library
+;;;; uses the input to retreive template and parse markdown
+;
+;
+;
+ (defn normalize-contract [{:keys [contractId] :as parsed-contract}]
+       (-> (bu/prepend-keys "contract" parsed-contract)
+           (dissoc :contract/contractId)
+           (assoc :crux.db/id (java.util.UUID/fromString contractId))))
 
 
+ (defn parse-normalize-lib
+       "parse and normalize sample from library"
+       [contract]
+       (-> (parse-lib contract)
+           (normalize-contract)))
 
-(defn normalize-contract [{:keys [contractId] :as parsed-contract}]
-  (-> (bu/prepend-keys "contract" parsed-contract)
-      (dissoc :contract/contractId)
-      (assoc :crux.db/id (java.util.UUID/fromString contractId))))
+ (defn parse-normalize-with-text
+       [contract]
+      (-> (parse-lib contract)
+           (normalize-contract)
+           (dissoc :contract/text)
+           (assoc :contract/text (sample-ast contract))))
 
 
-(defn parse-lib
-  "parse sample from library"
-  [contract]
-  (cicero-parse contract (get-sample contract)))
-
-(defn parse-normalize-lib
-  "parse and normalize sample from library"
-  [contract]
-  (-> (parse-lib contract)
-      (normalize-contract)))
-
-(defn parse-normalize-with-text
-  [contract]
-  (-> (parse-lib contract)
-      (normalize-contract)
-      (dissoc :contract/text)
-      (assoc :contract/text (sample-ast contract))))
-
-;; Convert the parsed template into a Malli Schema.
-
-(parse-lib "promissory-note")
+;; (parse-lib "promissory-note")
 
 (defn make-schema
   "Makes a schema from a parsed K"
   [contract]
-   (mp/provide (vector (parse-lib contract)))
+  (mp/provide (vector (parse-lib contract)))
   )
+
+;(make-sehema "promissory-note")
 
 (defn make-json-schema
   "Makes json-schema from malli schema"
@@ -164,9 +186,6 @@
       (json-schema/transform)
       (generate-string)))
 
-;(make-json-schema-string "promissory-note")
-;;; Normalizes contract data for Crux
-;;; converts the created UUID to a Valid UUID for Crux
 
 ;;; utility predicate to insure contact matches schema declared in Registry
 
@@ -181,23 +200,24 @@
   [template sample]
   (let [contract (normalize-contract (cicero-parse template sample))]
     (bcrux/submit-tx
-      (sys)
-      {[:contract (:crux.db/id contract)] contract})))
+     (sys)
+     {[:contract (:crux.db/id contract)] contract})))
 
+;; (submit-contract "latedeliveryandpenalty" sample)
 (defn validate-contract
   "Validate a contract from the library"
   [contract]
   (proto/valid? schema :contract (parse-normalize-lib contract))) ; true
 
+;; (validate-contract "latedeliveryandpenalty")
 
 (defn set-contract-from-lib
   "get a sample from the lib on disk"
   [sample]
   (let [contract (normalize-contract (parse-lib sample))]
     (bcrux/submit-tx
-      (sys)
-      {[:contract (:crux.db/id contract)] contract})))
-
+     (sys)
+     {[:contract (:crux.db/id contract)] contract})))
 
 
 
@@ -209,74 +229,76 @@
   "Draft API Call"
   [contract data]
   (:body
-    (client/post (str cicero-end "draft/" contract)
-                 {:content-type :json
-                  :form-params  {"data" data}})))
+   (client/post (str cicero-end "draft/" contract)
+                {:content-type :json
+                 :form-params  {"data" data}})))
 
 ;;;  Version 2 using cicero-server --- running locally Localhost:6001
+
+;;;;; See awsclient for lambda experiments ;;;;
 
 (comment
 
   (parse-normalize-with-text "promissory-note")
   (validate-contract "promissory-note")
-   (parse-normalize-lib "promissory-note")
+  (parse-normalize-lib "promissory-note")
 
-  (set-contract-from-lib "promissory-note" )
+  (set-contract-from-lib "promissory-note")
   (make-schema "helloworld")
   (walk/stringify-keys (make-schema "hello-world"))
 
   ;; Make a Malli schema from a template
   ;; transform it to json-schema
 
-  (json-schema/transform (make-schema "promissory-note" ) {:pretty true})
- (make-schema "helloworld")
+  (json-schema/transform (make-schema "promissory-note") {:pretty true})
+  (make-schema "helloworld")
   (generate-string (json-schema/transform (make-schema "helloworld") {:pretty true}))
 
-  (def sch {"type" "object",
-            "properties" {"$class" {"type" "string"},
-                          "name" {"type" "string"},
-                          "clauseId" {"type" "string"},
-                          "$identifier" {"type" "string"}},
-            "required" ["$class" "name" "clauseId" "$identifier"]})
+  (def sch {"type"       "object"
+            "properties" {"$class"      {"type" "string"}
+                          "name"        {"type" "string"}
+                          "clauseId"    {"type" "string"}
+                          "$identifier" {"type" "string"}}
+            "required"   ["$class" "name" "clauseId" "$identifier"]})
 
-  (parse-string (generate-string (json-schema/transform (make-schema "helloworld") )))
-   (generate-string sch)
+  (parse-string (generate-string (json-schema/transform (make-schema "helloworld"))))
+  (generate-string sch)
   (make-schema "helloworld")
   (json-schema/transform (make-schema "helloworld"))
   (parse-string (generate-string sch))
   (cicero-parse "promissory-note" (parse-lib "promissory-note"))
-  (normalize-contract (parse-lib "promissory-note") )
+  (normalize-contract (parse-lib "promissory-note"))
   (parse-lib, "promissory-note")
   (mp/provide (vector (parse-lib "promissory-note")))
   (cicero-draft "promissory-note" (parse-lib "promissory-note"))
 
-  (proto/valid? schema :contract (parse-normalize-lib "promissory-note") ) ; true
-   (make-schema "promissory-note")
+  (proto/valid? schema :contract (parse-normalize-lib "promissory-note")) ; true
+  (make-schema "promissory-note")
   (set-contract "promissory-note" (get-sample "promissory-note"))
 
   (def contract (normalize-contract (cicero-parse "latedeliveryandpenalty" sample)))
   ;; =>
-  {:contract/forceMajeure true,
-   :contract/fractionalPart "days",
-   :contract/capPercentage 55,
-   :contract/seller "resource:org.accordproject.party.Party#Dan",
-   :contract/penaltyPercentage 10.5,
-   :contract/buyer "resource:org.accordproject.party.Party#Steve",
+  {:contract/forceMajeure      true
+   :contract/fractionalPart    "days"
+   :contract/capPercentage     55
+   :contract/seller            "resource:org.accordproject.party.Party#Dan"
+   :contract/penaltyPercentage 10.5
+   :contract/buyer             "resource:org.accordproject.party.Party#Steve"
    :contract/termination
-   {:$class "org.accordproject.time.Duration", :amount 15, :unit "days"},
+   {:$class "org.accordproject.time.Duration", :amount 15, :unit "days"}
    :contract/$class
-   "org.accordproject.latedeliveryandpenalty.LateDeliveryAndPenaltyContract",
-   :crux.db/id #uuid "ed3dcee9-2bb7-4871-9c04-0c21ed09b854",
-   :contract/$identifier "ed3dcee9-2bb7-4871-9c04-0c21ed09b854",
+   "org.accordproject.latedeliveryandpenalty.LateDeliveryAndPenaltyContract"
+   :crux.db/id                 #uuid "ed3dcee9-2bb7-4871-9c04-0c21ed09b854"
+   :contract/$identifier       "ed3dcee9-2bb7-4871-9c04-0c21ed09b854"
    :contract/penaltyDuration
    {:$class "org.accordproject.time.Duration", :amount 2, :unit "days"}}
   (def k2 (parse-lib "promissory-note"))
-   (prn k2)
-  (proto/valid? schema :contract contract) ; true
-(parse-lib "latedeliveryandpenalty")
-(cicero-parse "latedeliveryandpenalty" sample)
+  (prn k2)
+  (proto/valid? schema :contract contract)                  ; true
+  (parse-lib "latedeliveryandpenalty")
+  (cicero-parse "latedeliveryandpenalty" sample)
 
-(normalize-contract delta)
+  (normalize-contract delta)
   (-> (bu/prepend-keys "contract" (:keys delta))
       (dissoc :contract/contractId))
 
@@ -284,35 +306,35 @@
 
   (dissoc :contract/contractId)
 
-;;; Submit transaction
+  ;;; Submit transaction
 
   (bcrux/submit-tx
-    (sys)
-    {[:contract (:crux.db/id contract)] contract})
+   (sys)
+   {[:contract (:crux.db/id contract)] contract})
 
-;;; Query
+  ;;; Query
 
   (let [{:keys [biff.crux/db]} (sys)]
     (crux/q @db
-            '{:find [(pull contract [*])]
+            '{:find  [(pull contract [*])]
               :where [[contract :contract/$class]]}))
 
   ;;; results from cicero-parse
   ;;;
   (def delta
-    {:contractId        "92c57f20-dda0-4511-bd2b-d3f6bb4dfedc",
-     :penaltyDuration   {:$class "org.accordproject.time.Duration", :amount 2, :unit "days"},
-     :$identifier       "92c57f20-dda0-4511-bd2b-d3f6bb4dfedc",
-     :$class            "org.accordproject.latedeliveryandpenalty.LateDeliveryAndPenaltyContract",
-     :forceMajeure      true,
-     :termination       {:$class "org.accordproject.time.Duration", :amount 15, :unit "days"},
-     :fractionalPart    "days",
-     :buyer             "resource:org.accordproject.party.Party#Tom",
-     :capPercentage     55,
-     :penaltyPercentage 10.5,
+    {:contractId        "92c57f20-dda0-4511-bd2b-d3f6bb4dfedc"
+     :penaltyDuration   {:$class "org.accordproject.time.Duration", :amount 2, :unit "days"}
+     :$identifier       "92c57f20-dda0-4511-bd2b-d3f6bb4dfedc"
+     :$class            "org.accordproject.latedeliveryandpenalty.LateDeliveryAndPenaltyContract"
+     :forceMajeure      true
+     :termination       {:$class "org.accordproject.time.Duration", :amount 15, :unit "days"}
+     :fractionalPart    "days"
+     :buyer             "resource:org.accordproject.party.Party#Tom"
+     :capPercentage     55
+     :penaltyPercentage 10.5
      :seller            "resource:org.accordproject.party.Party#Jacob"})
 
-(bu/prepend-keys "contract" delta)
+  (bu/prepend-keys "contract" delta)
   ;;; Curl Request from Docs
 
   (def sample "## Late Delivery and Penalty.\n\n In case of delayed delivery except for Force Majeure cases,\n\"Dan\" (the Seller) shall pay to \"Steve\" (the Buyer) for every 2 days\nof delay penalty amounting to 10.5% of the total value of the Equipment\nwhose delivery has been delayed. Any fractional part of a days is to be\nconsidered a full days. The total amount of penalty shall not however,\nexceed 55% of the total value of the Equipment involved in late delivery.\nIf the delay is more than 15 days, the Buyer is entitled to terminate this Contract.")
@@ -335,6 +357,4 @@
          (println (str/trim-newline (run-cicero "promissory-note"))) ; doesn't work returns whole thing in vector
          (println k)
          (str/split k)
-         (println (str/split-lines k))
-
-         )
+         (println (str/split-lines k)))

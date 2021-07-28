@@ -1,19 +1,25 @@
 {:paths ["src" "resources" "target/resources"]
- :deps {metosin/malli {:mvn/version "0.5.1"},
-        com.kiranshila/cybermonday {:mvn/version "0.2.0"},
-        org.arachne-framework/arachne-fileset {:mvn/version "1.0.0-beta1"},
-        metosin/jsonista {:mvn/version "0.3.3"},
-        cheshire/cheshire {:mvn/version "5.10.0"},
-        biff/main {:git/url "https://github.com/jacobobryant/biff"
-                   :deps/root "libs/main"
-                   :sha "2a82eee794e0b34908ce169f3acfa322108b26cc"}
-        }
+ :deps {metosin/malli                  {:mvn/version "0.5.1"}
+        com.kiranshila/cybermonday     {:mvn/version "0.2.0"}
+        trustblocks/arachne-fileset    {:git/url "https://github.com/TrustBlocks/arachne-fileset.git"
+                                        :sha "92e46bfc9807f42281d5666344d526ca638398db"}
+        metosin/jsonista               {:mvn/version "0.3.3"}
+        metosin/reitit-swagger-ui      {:mvn/version "0.5.13"}
+        com.cognitect.aws/api          {:mvn/version "0.8.515"}
+        com.cognitect.aws/endpoints    {:mvn/version "1.1.12.13"}
+        com.cognitect.aws/s3           {:mvn/version "811.2.934.0"}
+        com.cognitect.aws/lambda       {:mvn/version "811.2.865.0"}
+        com.cognitect.aws/sqs          {:mvn/version "811.2.889.0"}
+        org.clojure/test.check         {:mvn/version "1.1.0"}
+        cheshire/cheshire              {:mvn/version "5.10.0"}
+        biff/main                      {:git/url "https://github.com/jacobobryant/biff"
+                                        :deps/root "libs/main"
+                                        :sha "81f50a64d11e428848f4d41d98248a18bac8b1da"}}
  :aliases {:dev {:extra-paths ["dev"]
                  :extra-deps {biff/dev {:git/url "https://github.com/jacobobryant/biff"
                                         :deps/root "libs/dev"
-                                        :sha "2a82eee794e0b34908ce169f3acfa322108b26cc"}
+                                        :sha "81f50a64d11e428848f4d41d98248a18bac8b1da"}
                               cider/cider-nrepl {:mvn/version "0.26.0"}
                               thheller/shadow-cljs {:mvn/version "2.12.7"}
                               metosin/reitit-frontend {:mvn/version "0.5.5"}
-                              djblue/portal {:mvn/version "0.11.2"}
                               com.github.seancorfield/depstar {:mvn/version "2.0.211"}}}}}

@@ -2,8 +2,7 @@
   (:require [biff.util :as bu]
             [clojure.pprint :as pp]
             [reitit.frontend.easy :as rfe]
-            [rum.core :as rum :refer [react defc defcs reactive local adopt-class]]
-            [react-json-schema-form :as jsf]
+            [rum.core :as rum :refer [react defc defcs reactive local]]
             [trustblocks.views.shared :as shared]
             [trustblocks.client.app.db :as db]
             [trustblocks.client.app.mutations :as m]))
@@ -21,8 +20,6 @@
    [:.h-1]
    [:pre.text-sm (bu/ppr-str (react db/subscriptions))]])
 
-(defc input-form []
-  (adopt-class react-json-schema-form ))
 
 (defcs set-value < reactive (local "" ::tmp-value)
   [{::keys [tmp-value]} {:keys [label model mutate description]}]

@@ -8,8 +8,11 @@
 /node_modules/
 /storage/
 /target/
-/www/
+/www/	
 /.calva/
 /.idea/
 /.cljs_node_repl
+/.settings/
+/.classpath
+
 
