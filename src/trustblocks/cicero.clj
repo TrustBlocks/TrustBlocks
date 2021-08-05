@@ -22,9 +22,9 @@
 
 ;; Set up local directory
 
-(def local-dir "/Users/tmb/Coding/Accord/cicero-template-library/src/")
-(def cf-dir "/Users/tmb/coding/trustblocks/commonform.org/forms")
 
+(def local-dir "/Users/tmb/Coding/trustblocks/cicero-template-library/src/")
+(def cf-dir "/Users/tmb/coding/trustblocks/commonform.org/forms")
 ;; run cicero test
 
 (defn run-cicero-cli
@@ -33,7 +33,8 @@
       (let [cta (str local-dir contract)]
            (bu/sh "cicero" "parse" cta :out-enc "UTF-8")))
 
-;;;;;;;;;; Load and parse templates and samples from local directory  ;;;;;;;;;
+;;;;;;;;;; Load and parse temp,,lates and samples from local directory  ;;;;;;;;;
+
 
 (defn get-sample
        "Load sample md from file"
@@ -55,41 +56,7 @@
        (ir/md-to-ir (get-template sample)))
 
 
-
-;; pull in the entire src directory -- all the template files
-
-(def cicero-fileset (fs/add (fs/fileset) (io/file local-dir)))
-(def subd (fs/add (fs/fileset) (io/file (str local-dir "promissory-note"))))
-
- (comment
-
-;;; Source directory listing
-   
-  (re-find #"(.*?)\/" "promissory-note/logic/logic.ergo")
   
-   (defn get-dir [fileset]
-     (nth (re-find #"(.*?)\/" fileset) 1))
-
-     (map get-dir (fs/ls cicero-fileset)))
-
-   (defn dir-set [fileset]
-     (into #{} (map get-dir (fs/ls fileset))))
- 
-           (dir-set cicero-fileset)
-(get-dir cicero-fileset)
-   
- (nth ["docusign-po-failure/" "docusign-po-failure"] 1)
-
- (fs/ls cicero-fileset)
-
-;;; Count the files
- (count (fs/ls cicero-fileset))
- 
-; pull text from template library
-
- (fs/ls subd)
-   
-   )
 ;;;
 ;;;;;        Cicero- Server experimentation        ;;;;;;;;
 ;;;
@@ -131,6 +98,8 @@
        [contract]
        (cicero-parse contract (get-sample contract)))
 
+(parse-lib "latedeliveryandpenalty")
+   
   ;; (client/post (str cicero-end "parse" "promissory-note")
   ;;           {:headers
   ;;          {"content-type" "json"

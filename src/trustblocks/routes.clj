@@ -5,6 +5,8 @@
             [clojure.edn :as edn]
             [clojure.stacktrace :as st]
             [clojure.walk :refer [postwalk]]
+            [reitit.swagger :as swagger]
+            [reitit.swagger-ui :as swagger-ui]
             [crux.api :as crux]
             [ring.middleware.anti-forgery :as anti-forgery]
             [trustblocks.routes.auth :as auth]
@@ -109,5 +111,5 @@
                 :middleware [wrap-signed-in]
                 :name ::ssr
                 :biff/redirect true}]
-   ["/api/form-tx" {:post form-tx}]
-   auth/routes])
+  ["/api/form-tx" {:post form-tx}]
+          auth/routes])
