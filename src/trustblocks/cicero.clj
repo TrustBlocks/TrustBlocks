@@ -316,6 +316,8 @@
 
 (comment -- CLI Tests using portal
 
+         
+
          (run-cicero "promissory-note")
          (p/open)                                           ;Open Portal Browser
          (add-tap #'p/submit)                               ;add p as portal target
@@ -327,3 +329,171 @@
          (println k)
          (str/split k)
          (println (str/split-lines k)))
+
+
+
+(comment -- CireoMark sample-ast
+
+  (def ciceromark "{"$class": "org.accordproject.commonmark.Document",
+     "xmlns": "http://commonmark.org/xml/1.0",
+     "nodes": [
+      {
+        "$class": "org.accordproject.commonmark.Heading",
+        "level": "2",
+       "nodes": [
+        {
+          "$class": "org.accordproject.commonmark.Text",
+          "text": "Try TemplateMark"
+        }
+      ]
+    },
+    {
+      "$class": "org.accordproject.commonmark.Paragraph",
+      "nodes": [
+        {
+          "$class": "org.accordproject.commonmark.Text",
+          "text": "You can try TemplateMark here.  This dingus is powered by"
+        },
+        {
+          "$class": "org.accordproject.commonmark.Softbreak"
+        },
+        {
+          "$class": "org.accordproject.commonmark.Link",
+          "destination": "https://github.com/accordproject/markdown-transform",
+          "title": "",
+          "nodes": [
+            {
+              "$class": "org.accordproject.commonmark.Text",
+              "text": "@accordproject/markdown-transform"
+            }
+          ]
+        },
+        {
+          "$class": "org.accordproject.commonmark.Text",
+          "text": "."
+        }
+      ]
+    },
+    {
+      "$class": "org.accordproject.commonmark.Paragraph",
+      "nodes": [
+        {
+          "$class": "org.accordproject.commonmark.Text",
+          "text": "TemplateMark lets you to create templates for CommonMark. Templates can contain {{variables}}, "
+        },
+        {
+          "$class": "org.accordproject.ciceromark.Formula",
+          "value": " formulas ",
+          "dependencies": [],
+          "name": "formula"
+        },
+        {
+          "$class": "org.accordproject.commonmark.Text",
+          "text": ", and {{#if true}}template blocks{{/if}}."
+        }
+      ]
+    },
+    {
+      "$class": "org.accordproject.commonmark.Paragraph",
+      "nodes": [
+        {
+          "$class": "org.accordproject.commonmark.Emph",
+          "nodes": [
+            {
+              "$class": "org.accordproject.commonmark.Text",
+              "text": "They can also, of course, contain "
+            },
+            {
+              "$class": "org.accordproject.commonmark.Strong",
+              "nodes": [
+                {
+                  "$class": "org.accordproject.commonmark.Text",
+                  "text": "markdown"
+                }
+              ]
+            },
+            {
+              "$class": "org.accordproject.commonmark.Text",
+              "text": ":"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "$class": "org.accordproject.commonmark.List",
+      "type": "ordered",
+      "start": "1",
+      "tight": "true",
+      "delimiter": "period",
+      "nodes": [
+        {
+          "$class": "org.accordproject.commonmark.Item",
+          "nodes": [
+            {
+              "$class": "org.accordproject.commonmark.Paragraph",
+              "nodes": [
+                {
+                  "$class": "org.accordproject.commonmark.Text",
+                  "text": "item one"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "$class": "org.accordproject.commonmark.Item",
+          "nodes": [
+            {
+              "$class": "org.accordproject.commonmark.Paragraph",
+              "nodes": [
+                {
+                  "$class": "org.accordproject.commonmark.Text",
+                  "text": "item two"
+                }
+              ]
+            },
+            {
+              "$class": "org.accordproject.commonmark.List",
+              "type": "bullet",
+              "tight": "true",
+              "nodes": [
+                {
+                  "$class": "org.accordproject.commonmark.Item",
+                  "nodes": [
+                    {
+                      "$class": "org.accordproject.commonmark.Paragraph",
+                      "nodes": [
+                        {
+                          "$class": "org.accordproject.commonmark.Text",
+                          "text": "sublist"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "$class": "org.accordproject.commonmark.Item",
+                  "nodes": [
+                    {
+                      "$class": "org.accordproject.commonmark.Paragraph",
+                      "nodes": [
+                        {
+                          "$class": "org.accordproject.commonmark.Text",
+                          "text": "sublist"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}"
+)
+         
+         )

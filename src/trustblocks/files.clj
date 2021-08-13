@@ -11,15 +11,12 @@
 ;; (def cicero-fileset (fs/add (fs/fileset) (io/file local-dir)))
 ;; (def cf-fileset (fs/add (fs/fileset) (io/file cf-dir)))
 
-
+;; parse out the top level directory
 (defn get-dir [fileset]
   (nth (re-find #"(.*?)\/"  fileset) 1))
 
-(defn get-package [dir fileset]
-  (re-find (re-pattern dir)))
 
-
-;; (get-dir cicero-fileset)
+;; use get-dir to pull the toplevel directory out
  (defn dir-set [fileset]
      (into #{} (map get-dir (fs/ls fileset))))
 
@@ -36,6 +33,8 @@
 
   (str/split "latedeliveryandpenalty-optional-this/logic/logic.ergo" #"\/")
   
+(map #(cicero-package cicero-fileset %) (dir-set cicero-fileset))
+(file-seq (io/file local-dir))
 
 
   )
@@ -148,7 +147,9 @@
    (cicero-package cicero-fileset "supplyagreement")
 
    (map cicero-package (dir-set cicero-fileset) (fs/ls cicero-fileset))
-(dir-set cicero-fileset)
+
+ 
+ (dir-set cicero-fileset)
   (fs/ls cicero-fileset
    (defn get-cta 
      [fileset contract]

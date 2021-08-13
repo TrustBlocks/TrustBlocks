@@ -5,6 +5,7 @@
             [clojure.edn :as edn]
             [clojure.stacktrace :as st]
             [clojure.walk :refer [postwalk]]
+            [reitit.ring :as ring]
             [reitit.swagger :as swagger]
             [reitit.swagger-ui :as swagger-ui]
             [crux.api :as crux]
@@ -103,13 +104,25 @@
 
 ; See https://cljdoc.org/d/metosin/reitit/0.5.10/doc/introduction#ring-router
 (defn routes []
-  [["/api/echo" {:get echo
-                 :post echo}]
+
+  [["/swagger.json" {:get 
+                     {:no-doc true
+                      :swagger {:info {:title "TrustBlocks API"}
+                                :basepath "/"}
+                      :handler (swagger/create-swagger-handler)}}]
+   ["/api/echo"
+    {:swagger {:tags ["echo"]}}
+          {:get echo
+           :post echo}]
    ["/api/whoami" {:get whoami
                    :middleware [wrap-signed-in]}]
    ["/app/ssr" {:get #(br/render ssr %)
                 :middleware [wrap-signed-in]
                 :name ::ssr
                 :biff/redirect true}]
+   
   ["/api/form-tx" {:post form-tx}]
-          auth/routes])
+          auth/routes]
+  (swagger-ui/create-swagger-ui-handler {:path "/"})
+  (ring/create-default-handler))
+                                        
