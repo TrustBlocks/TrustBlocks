@@ -8,9 +8,15 @@
             [reitit.ring :as ring]
             [reitit.swagger :as swagger]
             [reitit.swagger-ui :as swagger-ui]
+            [reitit.coercion.spec :as coercion-spec]
+            [reitit.ring.coercion :as coercion]
+            [reitit.ring.middleware.exception :as exception]
+            [reitit.ring.middleware.muuntaja :as muuntaja]
+            [muuntaja.core :as m]
             [crux.api :as crux]
             [ring.middleware.anti-forgery :as anti-forgery]
             [trustblocks.routes.auth :as auth]
+            [trustblocks.routes.contracts :as contracts]
             [trustblocks.views :as v]
             [trustblocks.views.shared :as shared]))
 
@@ -21,6 +27,46 @@
 ; curl -XPOST http://localhost:8080/echo -F foo=bar
 ; curl -XPOST http://localhost:8080/echo -H 'Content-Type: application/edn' -d '{:foo "bar"}'
 ; curl -XPOST http://localhost:8080/echo -H 'Content-Type: application/json' -d '{"foo":"bar"}'
+
+
+(def swagger-docs
+  ["/swagger.json"
+   {:get
+    {:no-doc  true
+     :swagger {:basePath "/"
+               :info     {:title       "TrustBlocks API Reference"
+                          :description "The TrustBlocks API is organized around REST. Returns JSON, Transit (msgpack, json), or EDN  encoded responses."
+                          :version     "1.0.0"}}
+     :handler (swagger/create-swagger-handler)}}])
+
+(def router-config
+  {:data {:coercion   coercion-spec/coercion
+          :muuntaja   m/instance
+          :middleware [swagger/swagger-feature
+                       muuntaja/format-middleware
+                       exception/exception-middleware
+                       coercion/coerce-request-middleware
+                       coercion/coerce-response-middleware]}})
+
+(defn routes
+  []
+  (ring/ring-handler
+   (ring/router
+    [swagger-docs
+     ["/v1"
+      (contracts/routes)]]
+    router-config)
+   (ring/routes
+    (swagger-ui/create-swagger-ui-handler {:path "/"}))))
+
+
+
+
+
+
+
+(comment 
+
 (defn echo [req]
   ; Default :status is 200. Default :body is "". :headers/* and
   ; :cookies/* are converted to `:headers {...}` and `:cookies {...}`.
@@ -92,7 +138,6 @@
          (when submitted
            [:.font-bold.my-3 "Transaction submitted successfully."]))])))
 
-
 (defn form-tx [req]
   (let [[biff-tx path] (biff.misc/parse-form-tx
                         req
@@ -101,28 +146,34 @@
     {:status 302
      :headers/location path}))
 
-
 ; See https://cljdoc.org/d/metosin/reitit/0.5.10/doc/introduction#ring-router
-(defn routes []
 
-  [["/swagger.json" {:get 
-                     {:no-doc true
-                      :swagger {:info {:title "TrustBlocks API"}
-                                :basepath "/"}
-                      :handler (swagger/create-swagger-handler)}}]
-   ["/api/echo"
-    {:swagger {:tags ["echo"]}}
-          {:get echo
-           :post echo}]
+(defn swagger.json [req]
+(swagger-ui/create-swagger-ui-handler 
+{:path "/" 
+:config {validatorUrl nil
+:operationSorter "alpha"} } )
+(ring/create-default-handler))                                    
+
+(defn routes []
+  [["/api/echo" {:get echo
+                 :post echo}
+               {:swagger {:tags ["echo"]}}]
+   
    ["/api/whoami" {:get whoami
-                   :middleware [wrap-signed-in]}]
+                   :middleware [wrap-signed-in]}
+                  {:swagger {:tags ["whoami"]}}]
+   
    ["/app/ssr" {:get #(br/render ssr %)
                 :middleware [wrap-signed-in]
                 :name ::ssr
                 :biff/redirect true}]
-   
+   ["/swagger.json"
+              {:get {:no-doc true}
+               :swagger {:info {:title "TrustBlocks API"
+                     :description "with reitit-ring"}}
+               :handler (swagger/create-swagger-handler)}]             
   ["/api/form-tx" {:post form-tx}]
-          auth/routes]
-  (swagger-ui/create-swagger-ui-handler {:path "/"})
-  (ring/create-default-handler))
-                                        
+          auth/routes])
+
+)

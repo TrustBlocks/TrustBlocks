@@ -4,8 +4,10 @@
         trustblocks/arachne-fileset    {:git/url "https://github.com/TrustBlocks/arachne-fileset.git"
                                         :sha "92e46bfc9807f42281d5666344d526ca638398db"}
         metosin/jsonista               {:mvn/version "0.3.3"}
+        metosin/reitit                 {:mvn/version"0.5.13"}
         metosin/reitit-swagger         {:mvn/version "0.5.13"}
         metosin/reitit-swagger-ui      {:mvn/version "0.5.13"}
+        metosin/muuntaja               {:mvn/version "0.6.8"}
         com.cognitect.aws/api          {:mvn/version "0.8.515"}
         com.cognitect.aws/endpoints    {:mvn/version "1.1.12.13"}
         com.cognitect.aws/s3           {:mvn/version "811.2.934.0"}
