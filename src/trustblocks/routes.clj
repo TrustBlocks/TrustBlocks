@@ -27,7 +27,7 @@
 ; curl -XPOST http://localhost:8080/echo -F foo=bar
 ; curl -XPOST http://localhost:8080/echo -H 'Content-Type: application/edn' -d '{:foo "bar"}'
 ; curl -XPOST http://localhost:8080/echo -H 'Content-Type: application/json' -d '{"foo":"bar"}'
-
+(comment
 
 (def swagger-docs
   ["/swagger.json"
@@ -59,13 +59,9 @@
    (ring/routes
     (swagger-ui/create-swagger-ui-handler {:path "/"}))))
 
+)
 
 
-
-
-
-
-(comment 
 
 (defn echo [req]
   ; Default :status is 200. Default :body is "". :headers/* and
@@ -148,12 +144,12 @@
 
 ; See https://cljdoc.org/d/metosin/reitit/0.5.10/doc/introduction#ring-router
 
-(defn swagger.json [req]
-(swagger-ui/create-swagger-ui-handler 
-{:path "/" 
-:config {validatorUrl nil
-:operationSorter "alpha"} } )
-(ring/create-default-handler))                                    
+;; (defn swagger.json [req]
+;; (swagger-ui/create-swagger-ui-handler 
+;; {:path "/" 
+;; :config {validatorUrl nil
+;; :operationSorter "alpha"} } )
+;; (ring/create-default-handler))                                    
 
 (defn routes []
   [["/api/echo" {:get echo
@@ -168,12 +164,11 @@
                 :middleware [wrap-signed-in]
                 :name ::ssr
                 :biff/redirect true}]
-   ["/swagger.json"
+   ["/api/swagger.json"
               {:get {:no-doc true}
                :swagger {:info {:title "TrustBlocks API"
                      :description "with reitit-ring"}}
-               :handler (swagger/create-swagger-handler)}]             
+               :handler (swagger/create-swagger-handler)}
+               (swagger-ui/create-swagger-ui-handler {:path "/"})]             
   ["/api/form-tx" {:post form-tx}]
           auth/routes])
-
-)
