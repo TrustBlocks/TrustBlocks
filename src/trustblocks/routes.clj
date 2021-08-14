@@ -61,8 +61,6 @@
 
 )
 
-
-
 (defn echo [req]
   ; Default :status is 200. Default :body is "". :headers/* and
   ; :cookies/* are converted to `:headers {...}` and `:cookies {...}`.
@@ -164,11 +162,11 @@
                 :middleware [wrap-signed-in]
                 :name ::ssr
                 :biff/redirect true}]
-   ["/api/swagger.json"
-              {:get {:no-doc true}
-               :swagger {:info {:title "TrustBlocks API"
-                     :description "with reitit-ring"}}
-               :handler (swagger/create-swagger-handler)}
-               (swagger-ui/create-swagger-ui-handler {:path "/"})]             
+  ;;  ["/api/swagger.json"
+  ;;             {:get {:no-doc true}
+  ;;              :swagger {:info {:title "TrustBlocks API"
+  ;;                    :description "with reitit-ring"}}
+  ;;              :handler (swagger/create-swagger-handler)}
+  ;;              (swagger-ui/create-swagger-ui-handler {:path "/"})]             
   ["/api/form-tx" {:post form-tx}]
           auth/routes])
