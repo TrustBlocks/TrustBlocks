@@ -27,39 +27,6 @@
 ; curl -XPOST http://localhost:8080/echo -F foo=bar
 ; curl -XPOST http://localhost:8080/echo -H 'Content-Type: application/edn' -d '{:foo "bar"}'
 ; curl -XPOST http://localhost:8080/echo -H 'Content-Type: application/json' -d '{"foo":"bar"}'
-(comment
-
-(def swagger-docs
-  ["/swagger.json"
-   {:get
-    {:no-doc  true
-     :swagger {:basePath "/"
-               :info     {:title       "TrustBlocks API Reference"
-                          :description "The TrustBlocks API is organized around REST. Returns JSON, Transit (msgpack, json), or EDN  encoded responses."
-                          :version     "1.0.0"}}
-     :handler (swagger/create-swagger-handler)}}])
-
-(def router-config
-  {:data {:coercion   coercion-spec/coercion
-          :muuntaja   m/instance
-          :middleware [swagger/swagger-feature
-                       muuntaja/format-middleware
-                       exception/exception-middleware
-                       coercion/coerce-request-middleware
-                       coercion/coerce-response-middleware]}})
-
-(defn routes
-  []
-  (ring/ring-handler
-   (ring/router
-    [swagger-docs
-     ["/v1"
-      (contracts/routes)]]
-    router-config)
-   (ring/routes
-    (swagger-ui/create-swagger-ui-handler {:path "/"}))))
-
-)
 
 (defn echo [req]
   ; Default :status is 200. Default :body is "". :headers/* and
@@ -149,24 +116,155 @@
 ;; :operationSorter "alpha"} } )
 ;; (ring/create-default-handler))                                    
 
+
 (defn routes []
-  [["/api/echo" {:get echo
-                 :post echo}
-               {:swagger {:tags ["echo"]}}]
-   
-   ["/api/whoami" {:get whoami
-                   :middleware [wrap-signed-in]}
-                  {:swagger {:tags ["whoami"]}}]
-   
-   ["/app/ssr" {:get #(br/render ssr %)
+  
+  [["/api"
+    ["/echo" {:get echo
+              :post echo}]
+    ["/whoami" {:get whoami
+                :middleware [wrap-signed-in]}]
+    ["/form-tx" {:post form-tx}]]
+   ["/app/ssr" {:get #(br/render v/ssr %)
                 :middleware [wrap-signed-in]
-                :name ::ssr
+                :name :ssr
                 :biff/redirect true}]
-  ;;  ["/api/swagger.json"
-  ;;             {:get {:no-doc true}
-  ;;              :swagger {:info {:title "TrustBlocks API"
-  ;;                    :description "with reitit-ring"}}
-  ;;              :handler (swagger/create-swagger-handler)}
-  ;;              (swagger-ui/create-swagger-ui-handler {:path "/"})]             
-  ["/api/form-tx" {:post form-tx}]
-          auth/routes])
+   auth/routes])
+
+
+
+(comment  - Jacek Schae - Reitit Course
+
+          (def swagger-docs
+            ["/swagger.json"
+             {:get
+              {:no-doc  true
+               :swagger {:basePath "/"
+                         :info     {:title       "TrustBlocks API Reference"
+                                    :description "The TrustBlocks API is organized around REST. Returns JSON, Transit (msgpack, json), or EDN  encoded responses."
+                                    :version     "1.0.0"}}
+               :handler (swagger/create-swagger-handler)}}])
+
+          (def router-config
+            {:data {:coercion   coercion-spec/coercion
+                    :muuntaja   m/instance
+                    :middleware [swagger/swagger-feature
+                                 muuntaja/format-middleware
+                                 exception/exception-middleware
+                                 coercion/coerce-request-middleware
+                                 coercion/coerce-response-middleware]}})
+
+          (defn routes
+            []
+            (ring/ring-handler
+             (ring/router
+              [swagger-docs
+               ["/v1"
+                (contracts/routes)]]
+              router-config)
+             (ring/routes
+              (swagger-ui/create-swagger-ui-handler {:path "/"})))))
+
+
+
+(comment 
+
+  -- Reitit Malli Swagger https://github.com/metosin/reitit/tree/master/examples/ring-malli-swagger
+
+  (def app
+  (ring/ring-handler
+   (ring/router
+    [["/swagger.json"
+      {:get {:no-doc true
+             :swagger {:info {:title "my-api"
+                              :description "with [malli](https://github.com/metosin/malli) and reitit-ring"}
+                       :tags [{:name "files", :description "file api"}
+                              {:name "math", :description "math api"}]}
+             :handler (swagger/create-swagger-handler)}}]
+
+     ["/files"
+      {:swagger {:tags ["files"]}}
+
+      ["/upload"
+       {:post {:summary "upload a file"
+               :parameters {:multipart [:map [:file reitit.ring.malli/temp-file-part]]}
+               :responses {200 {:body [:map [:name string?] [:size int?]]}}
+               :handler (fn [{{{:keys [file]} :multipart} :parameters}]
+                          {:status 200
+                           :body {:name (:filename file)
+                                  :size (:size file)}})}}]
+
+      ["/download"
+       {:get {:summary "downloads a file"
+              :swagger {:produces ["image/png"]}
+              :handler (fn [_]
+                         {:status 200
+                          :headers {"Content-Type" "image/png"}
+                          :body (-> "reitit.png"
+                                    (io/resource)
+                                    (io/input-stream))})}}]]
+
+     ["/math"
+      {:swagger {:tags ["math"]}}
+
+      ["/plus"
+       {:get {:summary "plus with malli query parameters"
+              :parameters {:query [:map [:x int?] [:y int?]]}
+              :responses {200 {:body [:map [:total int?]]}}
+              :handler (fn [{{{:keys [x y]} :query} :parameters}]
+                         {:status 200
+                          :body {:total (+ x y)}})}
+        :post {:summary "plus with malli body parameters"
+               :parameters {:body [:map [:x int?] [:y int?]]}
+               :responses {200 {:body [:map [:total int?]]}}
+               :handler (fn [{{{:keys [x y]} :body} :parameters}]
+                          {:status 200
+                           :body {:total (+ x y)}})}}]]]
+
+    {;;:reitit.middleware/transform dev/print-request-diffs ;; pretty diffs
+       ;;:validate spec/validate ;; enable spec validation for route data
+       ;;:reitit.spec/wrap spell/closed ;; strict top-level validation
+     :exception pretty/exception
+     :data {:coercion (reitit.coercion.malli/create
+                       {;; set of keys to include in error messages
+                        :error-keys #{#_:type :coercion :in :schema :value :errors :humanized #_:transformed}
+                           ;; schema identity function (default: close all map schemas)
+                        :compile mu/closed-schema
+                           ;; strip-extra-keys (effects only predefined transformers)
+                        :strip-extra-keys true
+                           ;; add/set default values
+                        :default-values true
+                           ;; malli options
+                        :options nil})
+            :muuntaja m/instance
+            :middleware [;; swagger feature
+                         swagger/swagger-feature
+                           ;; query-params & form-params
+                         parameters/parameters-middleware
+                           ;; content-negotiation
+                         muuntaja/format-negotiate-middleware
+                           ;; encoding response body
+                         muuntaja/format-response-middleware
+                           ;; exception handling
+                         exception/exception-middleware
+                           ;; decoding request body
+                         muuntaja/format-request-middleware
+                           ;; coercing response bodys
+                         coercion/coerce-response-middleware
+                           ;; coercing request parameters
+                         coercion/coerce-request-middleware
+                           ;; multipart
+                         multipart/multipart-middleware]}})
+   (ring/routes
+    (swagger-ui/create-swagger-ui-handler
+     {:path "/"
+      :config {:validatorUrl nil
+               :operationsSorter "alpha"}})
+    (ring/create-default-handler))))
+
+(defn start []
+  (jetty/run-jetty #'app {:port 3000, :join? false})
+  (println "server running in port 3000"))
+
+  )
+
