@@ -7,7 +7,7 @@
     [trustblocks.handlers :refer [api]]
     [trustblocks.routes.auth :refer [wrap-authentication]]
     [trustblocks.env :refer [use-env]]
-    ;; [trustblocks.routes :refer [routes on-error]]
+    [trustblocks.routes :refer [routes on-error]]
     [trustblocks.rules :refer [schema]])
   (:gen-class))
 
@@ -29,8 +29,8 @@
    misc/use-jetty])
 
 (def config {:biff/schema              (fn [] schema)
-            ;;  :biff.reitit/routes       (fn [] (routes))
-            ;;  :biff/on-error            (fn [req] (on-error req))
+             :biff.reitit/routes       (fn [] (routes))
+             :biff/on-error            (fn [req] (on-error req))
              :biff.sente/event-handler (fn [event] (api event (:?data event)))
              :biff.middleware/spa-path "/app/"
              :biff/after-refresh       `-main})
