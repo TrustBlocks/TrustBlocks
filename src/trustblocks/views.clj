@@ -5,9 +5,9 @@
             [trustblocks.views.shared :as shared]))
 
 (def default-opts
-  #:base{:title "Example app"
+  #:base{:title "TrustBlocks"
          :lang "en-US"
-         :description "Here is my example app."})
+         :description "Data Driven Law"})
 
 (def head*
   [[:link {:rel "stylesheet" :href "/css/main.css"}]

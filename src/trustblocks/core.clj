@@ -6,6 +6,7 @@
     [biff.middleware :as mid]
     [trustblocks.handlers :refer [api]]
     [trustblocks.routes.auth :refer [wrap-authentication]]
+    [trustblocks.swagger :refer [swagger-middleware]]
     [trustblocks.env :refer [use-env]]
     [trustblocks.routes :refer [routes on-error]]
     [trustblocks.rules :refer [schema]])
@@ -23,6 +24,7 @@
    #(update % :biff/handler
             bcrux/wrap-db {:node (:biff.crux/node %)})
    #(update % :biff/handler wrap-authentication)
+  ;;  #(update % :biff/handler swagger-middleware)
    mid/use-default-middleware
    #(assoc % :biff.jetty/websockets
            {"/api/chsk" (:biff/handler %)})
@@ -37,3 +39,4 @@
 
 (defn -main []
   (bu/start-system config components))
+
