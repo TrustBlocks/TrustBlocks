@@ -1,8 +1,10 @@
 {:paths ["src" "resources" "target/resources"]
  :deps {metosin/malli                  {:mvn/version "0.5.1"}
         com.kiranshila/cybermonday     {:mvn/version "0.2.0"}
-        trustblocks/arachne-fileset    {:git/url "https://github.com/TrustBlocks/arachne-fileset.git"
-                                        :sha "92e46bfc9807f42281d5666344d526ca638398db"}
+        trustblocks/arachne-fileset    {:git/url "https://github.com/TrustBlocks/arachne-fileset.git" :sha "92e46bfc9807f42281d5666344d526ca638398db"}
+        ring/ring                      {:mvn/version "1.9.4"}
+        ring/ring-defaults             {:mvn/version "0.3.1"} 
+        ring/ring-jetty-adapter        {:mvn/version "1.7.1"} 
         metosin/jsonista               {:mvn/version "0.3.3"}
         metosin/reitit                 {:mvn/version"0.5.13"}
         metosin/reitit-swagger         {:mvn/version "0.5.13"}
