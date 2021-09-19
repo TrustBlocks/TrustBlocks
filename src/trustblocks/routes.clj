@@ -118,7 +118,7 @@
 
 (defn contract-data
   [{:keys [number]}]
-  (let [file-name (str "episodes/" number ".edn")]
+  (let [file-name (str "contract/" number ".edn")]
     (read-edn-file file-name)))
 
 (def swagger-route
@@ -126,7 +126,7 @@
    {:get {:no-doc  true
           :swagger {:info {:title       "TrustBlocks API"
                            :description "with [malli](https://github.com/metosin/malli) and reitit-ring"}
-                    :tags [{:name "contractss", :description "contracts api"}]}
+                    :tags [{:name "contracts", :description "contracts api"}]}
           :handler (swagger/create-swagger-handler)}}])
 
 (defn handle-save-request
@@ -148,9 +148,6 @@
 (def save-response [:map [:number int?]])
 
 
-
-
-
 (def api-route
   ["/api"
    ["/contracts"
@@ -164,7 +161,57 @@
       :get     {:summary    "Fetch data for the specific contract number"
                 :parameters {:path [:map [:number int?]]}
                 :responses  {200 {:body read-response}}
-                :handler    handle-read-request}}]]])
+                :handler    handle-read-request}}]]
+   ["/clauses"
+    ["" {:swagger {:tags ["clauses"]}
+         :post    {:summary    "Save data for the clause"
+                   :parameters {:body [:map [:number int?]]}
+                   :responses  {200 {:body save-response}}
+                   :handler    handle-save-request}}]
+    ["/:number"
+     {:swagger {:tags ["clauses"]}
+      :get     {:summary    "Fetch data for the specific clause number"
+                :parameters {:path [:map [:number int?]]}
+                :responses  {200 {:body read-response}}
+                :handler    handle-read-request}}]]
+   ["/parties"
+    ["" {:swagger {:tags ["parties"]}
+         :post    {:summary    "Save data for the party"
+                   :parameters {:body [:map [:number int?]]}
+                   :responses  {200 {:body save-response}}
+                   :handler    handle-save-request}}]
+    ["/:number"
+     {:swagger {:tags ["parties"]}
+      :get     {:summary    "Fetch data for the specific party number"
+                :parameters {:path [:map [:number int?]]}
+                :responses  {200 {:body read-response}}
+                :handler    handle-read-request}}]]
+   ["/events"
+    ["" {:swagger {:tags ["events"]}
+         :post    {:summary    "Save data for the event"
+                   :parameters {:body [:map [:number int?]]}
+                   :responses  {200 {:body save-response}}
+                   :handler    handle-save-request}}]
+    ["/:number"
+     {:swagger {:tags ["events"]}
+      :get     {:summary    "Fetch data for the specific event number"
+                :parameters {:path [:map [:number int?]]}
+                :responses  {200 {:body read-response}}
+                :handler    handle-read-request}}]]
+   ["/places"
+    ["" {:swagger {:tags ["places"]}
+         :post    {:summary    "Save data for the place"
+                   :parameters {:body [:map [:number int?]]}
+                   :responses  {200 {:body save-response}}
+                   :handler    handle-save-request}}]
+    ["/:number"
+     {:swagger {:tags ["places"]}
+      :get     {:summary    "Fetch data for the specific place number"
+                :parameters {:path [:map [:number int?]]}
+                :responses  {200 {:body read-response}}
+                :handler    handle-read-request}}]]
+   
+   ])
 
 (def app
   (ring/ring-handler

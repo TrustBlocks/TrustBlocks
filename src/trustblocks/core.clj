@@ -16,7 +16,6 @@
 
 
 
-
 (comment
   (def components
     [use-env
@@ -47,6 +46,8 @@
              :biff.middleware/spa-path "/app/"
              :biff/after-refresh       `-main})
 
-;; (defn -main []
-;;   (bu/start-system config components))
+(comment
+  (defn -main []
+    (bu/start-system config components))
+  )
 

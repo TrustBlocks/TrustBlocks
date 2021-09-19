@@ -1,21 +1,21 @@
 (ns trustblocks.cicero
-    (:require 
-       [biff.util :as bu]
-       [biff.util.protocols :as proto]
-       [biff.crux :as bcrux]
-       [arachne.fileset :as fs]
-       [clojure.java.io :as io]
-       [cybermonday.core :as cm]
-       [cybermonday.ir :as ir]
-       [malli.provider :as mp]
-       [cheshire.core :refer :all]
-       [clojure.walk :as walk]
-       [malli.json-schema :as json-schema]
-       [trustblocks.admin :refer [sys]]
-       [trustblocks.rules :refer [schema]]
-       [clj-http.client :as client]
-       [clojure.string :as str]
-       [clojure.data.json :as json]))
+  (:require
+   [biff.util :as bu]
+   [biff.util.protocols :as proto]
+   [biff.crux :as bcrux]
+   [arachne.fileset :as fs]
+   [clojure.java.io :as io]
+   [cybermonday.core :as cm]
+   [cybermonday.ir :as ir]
+   [malli.provider :as mp]
+   [cheshire.core :refer :all]
+   [clojure.walk :as walk]
+   [malli.json-schema :as json-schema]
+   [trustblocks.admin :refer [sys]]
+   [trustblocks.rules :refer [schema]]
+   [clj-http.client :as client]
+   [clojure.string :as str]
+   [clojure.data.json :as json]))
 
 
 ;;;;;;;      CLI Experimentation       ;;;;;;
@@ -28,35 +28,35 @@
 ;; run cicero test
 
 (defn run-cicero-cli
-      "Simple proof of concept for parse from command line -- pretty slow"
-      [contract]
-      (let [cta (str local-dir contract)]
-           (bu/sh "cicero" "parse" cta :out-enc "UTF-8")))
+  "Simple proof of concept for parse from command line -- pretty slow"
+  [contract]
+  (let [cta (str local-dir contract)]
+    (bu/sh "cicero" "parse" cta :out-enc "UTF-8")))
 
 ;;;;;;;;;; Load and parse temp,,lates and samples from local directory  ;;;;;;;;;
 
 
 (defn get-sample
-       "Load sample md from file"
-       [k]
-       (slurp (str local-dir k "/text/sample.md")))
+  "Load sample md from file"
+  [k]
+  (slurp (str local-dir k "/text/sample.md")))
 
- (defn get-template
-       [k]
-       (slurp (str local-dir k "/text/grammar.tem.md")))
+(defn get-template
+  [k]
+  (slurp (str local-dir k "/text/grammar.tem.md")))
 
- (defn sample-ast
-       "Markdown Sample to AST"
-       [sample]
-       (ir/md-to-ir (get-sample sample)))
+(defn sample-ast
+  "Markdown Sample to AST"
+  [sample]
+  (ir/md-to-ir (get-sample sample)))
 
- (defn template-ast
-       "Markdown Template to AST"
-       [sample]
-       (ir/md-to-ir (get-template sample)))
+(defn template-ast
+  "Markdown Template to AST"
+  [sample]
+  (ir/md-to-ir (get-template sample)))
 
 
-  
+
 ;;;
 ;;;;;        Cicero- Server experimentation        ;;;;;;;;
 ;;;
@@ -78,28 +78,28 @@
 ;;; At least in the present version the document to parse has to have key of sample
 ;;; The contract is the library template
 
- (defn cicero-parse
-       "Parsing API call"
-       [contract sample]
-       (:body
-         (client/post (str cicero-end "parse/" contract)
-                      {:content-type :json
-                       :accept       :json
-                       :as           :json
-                       :form-params  {"sample" sample}})))
+(defn cicero-parse
+  "Parsing API call"
+  [contract sample]
+  (:body
+   (client/post (str cicero-end "parse/" contract)
+                {:content-type :json
+                 :accept       :json
+                 :as           :json
+                 :form-params  {"sample" sample}})))
 
 
-   (template-ast "promissory-note")
+(template-ast "promissory-note")
 
-    (sample-ast "promissory-note")
+(sample-ast "promissory-note")
 
- (defn parse-lib
-       "parse sample from library"
-       [contract]
-       (cicero-parse contract (get-sample contract)))
+(defn parse-lib
+  "parse sample from library"
+  [contract]
+  (cicero-parse contract (get-sample contract)))
 
 (parse-lib "latedeliveryandpenalty")
-   
+
   ;; (client/post (str cicero-end "parse" "promissory-note")
   ;;           {:headers
   ;;          {"content-type" "json"
@@ -112,41 +112,57 @@
 ;
 ;
 ;
- (defn normalize-contract [{:keys [contractId] :as parsed-contract}]
-       (-> (bu/prepend-keys "contract" parsed-contract)
-           (dissoc :contract/contractId)
-           (assoc :crux.db/id (java.util.UUID/fromString contractId))))
+(defn normalize-contract [{:keys [contractId] :as parsed-contract}]
+  (-> (bu/prepend-keys "contract" parsed-contract)
+      (dissoc :contract/contractId)
+      (assoc :crux.db/id (java.util.UUID/fromString contractId))))
+(comment
 
-
- (defn parse-normalize-lib
-       "parse and normalize sample from library"
-       [contract]
-       (-> (parse-lib contract)
-           (normalize-contract)))
-
- (defn parse-normalize-with-text
-       [contract]
-      (-> (parse-lib contract)
-           (normalize-contract)
-           (dissoc :contract/text)
-           (assoc :contract/text (sample-ast contract))))
-
-
-;; (parse-lib "promissory-note")
-
-(defn make-schema
-  "Makes a schema from a parsed K"
-  [contract]
-  (mp/provide (vector (parse-lib contract)))
+  (ns-publics *ns*)
+  
   )
 
-;(make-sehema "promissory-note")
+(defn parse-normalize-lib
+  "parse and normalize sample from library"
+  [contract]
+  (-> (parse-lib contract)
+      (normalize-contract)))
+
+(defn parse-normalize-with-text
+  [contract]
+  (-> (parse-lib contract)
+      (normalize-contract)
+      (dissoc :contract/text)
+      (assoc :contract/text (sample-ast contract))))
+
+(defn practi  )
+
+
+(comment
+
+  (ns-publics 'clojure.core)
+
+
+  
+  (parse-lib "promissory-note")
+
+
+  (defn make-schema
+    "Makes a schema from a parsed K"
+    [contract]
+    (mp/provide (vector (parse-lib contract))))
+
+
+  (make-schema "promissory-note")
+  )
 
 (defn make-json-schema
   "Makes json-schema from malli schema"
   [contract]
   (-> (make-schema contract)
       (json-schema/transform)))
+
+(make-json-schema "promissory-note")
 
 (defn make-json-schema-string
   "Makes json-schema from malli schema"
@@ -172,7 +188,7 @@
      (sys)
      {[:contract (:crux.db/id contract)] contract})))
 
-;; (submit-contract "latedeliveryandpenalty" sample)
+(submit-contract "latedeliveryandpenalty" sample)
 (defn validate-contract
   "Validate a contract from the library"
   [contract]
@@ -187,7 +203,7 @@
     (bcrux/submit-tx
      (sys)
      {[:contract (:crux.db/id contract)] contract})))
-
+(set-contract-from-lib  "promissory-note")
 
 
 ;;; Basic draft function - this takes a template and JSON to return a Markdown Document
@@ -316,7 +332,7 @@
 
 (comment -- CLI Tests using portal
 
-         
+
 
          (run-cicero "promissory-note")
          (p/open)                                           ;Open Portal Browser
@@ -330,170 +346,3 @@
          (str/split k)
          (println (str/split-lines k)))
 
-
-
-(comment -- CireoMark sample-ast
-
-  (def ciceromark "{"$class": "org.accordproject.commonmark.Document",
-     "xmlns": "http://commonmark.org/xml/1.0",
-     "nodes": [
-      {
-        "$class": "org.accordproject.commonmark.Heading",
-        "level": "2",
-       "nodes": [
-        {
-          "$class": "org.accordproject.commonmark.Text",
-          "text": "Try TemplateMark"
-        }
-      ]
-    },
-    {
-      "$class": "org.accordproject.commonmark.Paragraph",
-      "nodes": [
-        {
-          "$class": "org.accordproject.commonmark.Text",
-          "text": "You can try TemplateMark here.  This dingus is powered by"
-        },
-        {
-          "$class": "org.accordproject.commonmark.Softbreak"
-        },
-        {
-          "$class": "org.accordproject.commonmark.Link",
-          "destination": "https://github.com/accordproject/markdown-transform",
-          "title": "",
-          "nodes": [
-            {
-              "$class": "org.accordproject.commonmark.Text",
-              "text": "@accordproject/markdown-transform"
-            }
-          ]
-        },
-        {
-          "$class": "org.accordproject.commonmark.Text",
-          "text": "."
-        }
-      ]
-    },
-    {
-      "$class": "org.accordproject.commonmark.Paragraph",
-      "nodes": [
-        {
-          "$class": "org.accordproject.commonmark.Text",
-          "text": "TemplateMark lets you to create templates for CommonMark. Templates can contain {{variables}}, "
-        },
-        {
-          "$class": "org.accordproject.ciceromark.Formula",
-          "value": " formulas ",
-          "dependencies": [],
-          "name": "formula"
-        },
-        {
-          "$class": "org.accordproject.commonmark.Text",
-          "text": ", and {{#if true}}template blocks{{/if}}."
-        }
-      ]
-    },
-    {
-      "$class": "org.accordproject.commonmark.Paragraph",
-      "nodes": [
-        {
-          "$class": "org.accordproject.commonmark.Emph",
-          "nodes": [
-            {
-              "$class": "org.accordproject.commonmark.Text",
-              "text": "They can also, of course, contain "
-            },
-            {
-              "$class": "org.accordproject.commonmark.Strong",
-              "nodes": [
-                {
-                  "$class": "org.accordproject.commonmark.Text",
-                  "text": "markdown"
-                }
-              ]
-            },
-            {
-              "$class": "org.accordproject.commonmark.Text",
-              "text": ":"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "$class": "org.accordproject.commonmark.List",
-      "type": "ordered",
-      "start": "1",
-      "tight": "true",
-      "delimiter": "period",
-      "nodes": [
-        {
-          "$class": "org.accordproject.commonmark.Item",
-          "nodes": [
-            {
-              "$class": "org.accordproject.commonmark.Paragraph",
-              "nodes": [
-                {
-                  "$class": "org.accordproject.commonmark.Text",
-                  "text": "item one"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "$class": "org.accordproject.commonmark.Item",
-          "nodes": [
-            {
-              "$class": "org.accordproject.commonmark.Paragraph",
-              "nodes": [
-                {
-                  "$class": "org.accordproject.commonmark.Text",
-                  "text": "item two"
-                }
-              ]
-            },
-            {
-              "$class": "org.accordproject.commonmark.List",
-              "type": "bullet",
-              "tight": "true",
-              "nodes": [
-                {
-                  "$class": "org.accordproject.commonmark.Item",
-                  "nodes": [
-                    {
-                      "$class": "org.accordproject.commonmark.Paragraph",
-                      "nodes": [
-                        {
-                          "$class": "org.accordproject.commonmark.Text",
-                          "text": "sublist"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "$class": "org.accordproject.commonmark.Item",
-                  "nodes": [
-                    {
-                      "$class": "org.accordproject.commonmark.Paragraph",
-                      "nodes": [
-                        {
-                          "$class": "org.accordproject.commonmark.Text",
-                          "text": "sublist"
-                        }
-                      ]
-                    }
-                  ]
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    }
-  ]
-}"
-)
-         
-         )

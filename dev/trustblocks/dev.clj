@@ -56,13 +56,13 @@
   (shadow-api/watch :app)
   (update sys :biff/stop conj #(shadow-server/stop!)))
 
-;; (defn start []
-;;   (bu/start-system
-;;     (assoc core/config
-;;            :biff/after-refresh `start
-;;            :biff.hawk/callback `on-file-change
-;;            :biff.hawk/paths ["src" "dev"])
-;;     (into [dev/use-hawk use-shadow-cljs] core/components)))
+(defn start []
+  (bu/start-system
+    (assoc core/config
+           :biff/after-refresh `start
+           :biff.hawk/callback `on-file-change
+           :biff.hawk/paths ["src" "dev"])
+    (into [dev/use-hawk use-shadow-cljs] core/components)))
 
 (defn -main [& args]
   (on-file-change)
@@ -103,7 +103,7 @@
 (defn -main [& _args]
   (let [port (or (some-> (System/getenv "PORT") safe-port) 3000)]
     (start port)))
- 
+(biff.crux/start-node bb ) 
   
   
   

@@ -14,5 +14,6 @@
 /.cljs_node_repl
 /.settings/
 /.classpath
+/.clj-kondo
 
 
